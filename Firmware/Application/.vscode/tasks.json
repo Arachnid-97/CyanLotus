@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "dependsOn":"Build",          // 任务依赖
+      "label": "Build and Download",
+      "type": "shell",
+      "command": "openocd", 
+      "args": [
+      "-f",
+      "interface/stlink.cfg",
+      "-f",
+      "target/stm32f4x.cfg",
+      "-c",
+      "program ./build/${workspaceFolderBasename}.elf verify reset exit"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "-j6"
+      ],
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+        "label": "Debug",
+        "type": "shell",
+        "command": "make",
+        "args": [
+          "-j8",
+          "DEBUG=1",
+          "VERSIONS=\"V9.9.9\""
+        ],
+        "problemMatcher": ["$gcc"]
+      }  
+  ]
+}

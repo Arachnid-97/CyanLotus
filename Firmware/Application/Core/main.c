@@ -1,0 +1,212 @@
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+
+/* Standard includes. */
+#include <stdio.h>
+#include <string.h>
+
+/* Library includes. */
+#include "stm32f4xx.h"
+
+/* Private app includes. */
+#include "bsp_uart.h"
+#include "bsp_clock.h"
+
+/* Scheduler includes. */
+#include "FreeRTOS.h"
+#include "task.h"			// 任务
+#include "queue.h"			// 队列
+#include "semphr.h"			// 信号量
+#include "event_groups.h"	// 事件组
+
+/* Middware includes. */
+#include "cJSON.h"
+
+
+/* Task priorities. */
+#define mainCREATOR_TASK_PRIORITY           ( configMAX_PRIORITIES - 1 )
+
+/*----------------------------- End -----------------------------*/
+
+/* Public parameters */
+#if configAPPLICATION_ALLOCATED_HEAP
+uint8_t ucHeap[configTOTAL_HEAP_SIZE] __attribute__ ((section (".memory_b1_text")));
+#endif /* configAPPLICATION_ALLOCATED_HEAP */
+
+cJSON_Hooks cJSON_mem = {NULL, NULL};
+
+/* Private parameters */
+
+/*
+ * 任务句柄是一个指针，用于指向一个任务，当任务创建好之后，它就具有了一个任务句柄
+ * 以后我们要想操作这个任务都需要通过这个任务句柄，如果是自身的任务操作自己，那么
+ * 这个句柄可以为 NULL。
+ */
+static TaskHandle_t UserTaskCreate_Handle = NULL;/* 创建任务句柄 */
+
+/*
+ * User Private Task.
+ */
+static void prvUser_Task( void *pvParameters );
+
+/*
+ * Configure the clocks, GPIO and other peripherals.
+ */
+static void prvSetupHardware( void );
+
+/*----------------------------- End -----------------------------*/
+
+
+/************************************************
+函数名称 ： SoftwareDelay_ms
+功    能 ： 软件 1毫秒延时(需根据实际频率调整)
+参    数 ： Count
+返 回 值 ： 无
+*************************************************/
+void SoftwareDelay_ms(uint32_t Cnt)
+{
+    uint8_t i, j;
+
+    while (Cnt--)
+    {
+        for (i = 2; i > 0; i--)
+            for (j = 43; j > 0; j--)
+                continue;
+    }
+}
+
+/************************************************
+函数名称 ： main
+功    能 ： 主函数入口
+参    数 ： 无
+返 回 值 ： 无
+*************************************************/
+int main( void )
+{
+#ifdef DEBUG
+    debug();
+#endif
+
+    BaseType_t xReturn = pdPASS; /* 定义一个创建信息返回值，默认为 pdPASS */
+
+    prvSetupHardware();
+
+    /* Start the tasks defined within this file/specific to this demo. */
+    xReturn = xTaskCreate( (TaskFunction_t)prvUser_Task,			/* 任务入口函数 */
+                           (const char *)"prvUser_Task",			/* 任务名字 */
+                           (uint16_t)configMINIMAL_STACK_SIZE,		/* 任务栈大小 */
+                           (void *)NULL,							/* 任务入口函数参数 */
+                           (UBaseType_t)mainCREATOR_TASK_PRIORITY,	/* 任务的优先级 */
+                           (TaskHandle_t *)UserTaskCreate_Handle );	/* 任务控制块指针 */
+
+    if(pdPASS == xReturn) {
+        /* Start the scheduler. */
+        vTaskStartScheduler();
+    }
+
+    /* Will only get here if there was not enough heap space to create the
+    idle task. */
+    return 0;
+}
+
+/*----------------------------- End -----------------------------*/
+
+/************************************************
+函数名称 ： prvUser_Task
+功    能 ： 用户任务
+参    数 ： 无
+返 回 值 ： 无
+*************************************************/
+static void prvUser_Task( void *pvParameters )
+{
+	cJSON_mem.malloc_fn = pvPortMalloc;
+	cJSON_mem.free_fn = vPortFree;
+	cJSON_InitHooks(&cJSON_mem);
+
+    printf("Hello world!!!");
+    fflush(stdout);
+
+    /* User-defined private tasks */
+
+
+    vTaskDelete(UserTaskCreate_Handle);		// 删除自己
+}
+
+/************************************************
+函数名称 ： prvSetupHardware
+功    能 ： 硬件接口初始化配置
+参    数 ： 无
+返 回 值 ： 无
+*************************************************/
+static void prvSetupHardware( void )
+{
+    HSI_SetSysClock(16, 432, 2, 7);
+
+    /* Set the Vector Table base location at 0x08000000 + XBDDD */
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, XBDDD);
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+    /* Other peripheral configuration */
+    vSetupUSART();
+    // vSetupTimer();
+    // vSetupParPort();
+                                               
+
+	printf("\r\n ****************************************************\r\n");
+	printf("       ___                    __          _     __\r\n");
+	printf("      /   |  _________ ______/ /_  ____  (_)___/ /\r\n");
+	printf("     / /| | / ___/ __ `/ ___/ __ \\/ __ \\/ / __  / \r\n");
+	printf("    / ___ |/ /  / /_/ / /__/ / / / / / / / /_/ /  \r\n");
+	printf("   /_/  |_/_/   \\__,_/\\___/_/ /_/_/ /_/_/\\__,_/   \r\n\n");
+	printf("   * Description      : Application entry\r\n");
+	printf("   * Release Vertion  : %s\r\n",FIRMWARE_VERSIONS);
+	printf("   * Release date     : %s\r\n",__DATE__);
+	printf("   * Note             : COPYRIGHT(c) 2021 Arachnid\r\n");
+	printf(" ****************************************************\r\n\r\n");
+    fflush(stdout);
+}
+
+/*----------------------------- End -----------------------------*/
+
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+#ifdef  USE_FULL_ASSERT
+/* Keep the linker happy. */
+// void assert_failed( unsigned char* file, unsigned int line )
+void assert_failed(uint8_t* file, uint32_t line)
+{
+    /* User can add his own implementation to report the file name and line number,
+       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    printf("[STM Info] Wrong parameters value: file %s on line %d of %s\r\n", file, (int)line, __FUNCTION__);
+
+    /* Infinite loop */
+    for( ;; )
+    {
+    }
+}
+#endif
+
+
+/*---------------------------- END OF FILE ----------------------------*/
+
+

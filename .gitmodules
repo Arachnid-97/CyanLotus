@@ -1,0 +1,9 @@
+[submodule "Firmware/Application/middleware/cJSON"]
+	path = Firmware/Application/middleware/cJSON
+	url = git@github.com:DaveGamble/cJSON.git
+[submodule "Firmware/Application/middleware/FreeRTOS"]
+	path = Firmware/Application/middleware/FreeRTOS
+	url = git@github.com:FreeRTOS/FreeRTOS.git
+[submodule "Firmware/Application/middleware/freemodbus"]
+	path = Firmware/Application/middleware/freemodbus
+	url = git@github.com:cwalter-at/freemodbus.git
