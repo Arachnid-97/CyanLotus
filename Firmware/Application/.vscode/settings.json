@@ -1,12 +1,42 @@
 {
-    "files.encoding": "gb2312",
     "files.autoGuessEncoding": true,
 
 	/* 终端在Windows上使用的shell的路径 */
-    "terminal.integrated.defaultProfile.windows": "C:\\Program Files\\Git\\bin\\bash.exe (migrated)", // 如果添加了环境变量可以去掉路径
+    "terminal.integrated.defaultProfile.windows": "Git Bash", // 如果添加了环境变量可以去掉路径
     "files.associations": {
         "stm32f4xx.h": "c",
         "cstdint": "cpp",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "etharp.h": "c",
+        "inet.h": "c",
+        "tcpip.h": "c",
+        "stm32f4x7_eth.h": "c",
+        "bsp_uart.h": "c",
+        "ethernet.h": "c",
+        "eth_socket.h": "c",
+        "stm32f4x7_eth_conf.h": "c",
+        "stdio.h": "c",
+        "def.h": "c",
+        "arch.h": "c",
+        "opt.h": "c",
+        "lwipopts.h": "c"
     },
+    "search.exclude": {
+        "**/.vscode": true,
+        "**/*.html": true,
+        "**/*.md": true,
+        "**/*.txt": true,
+        "**/build": true,
+        "**/cJSON/tests": true,
+        "**/Demo": true,
+        "**/Driver/CMSIS/RTOS": true,
+        "**/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates": true,
+        "**/Drivers/CMSIS/Documentation": true,
+        "**/Drivers/CMSIS/DSP_Lib": true,
+        "**/ff14/documents": true,
+        "**/freemodbus/demo": true,
+        "**/FreeRTOS-Plus": true
+    },
+    "search.showLineNumbers": true,
+    "terminal.explorerKind": "external",
 }

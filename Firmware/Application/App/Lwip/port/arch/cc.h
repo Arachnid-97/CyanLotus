@@ -35,9 +35,10 @@
 
 #define LWIP_NO_INTTYPES_H	1
 
+
 #define LWIP_NO_STDINT_H	1
 
-// Typedefs for the types used by lwip
+/* Typedefs for the types used by lwip */
 #if LWIP_NO_STDINT_H
 typedef unsigned char  u8_t;
 typedef signed   char  s8_t;
@@ -47,6 +48,13 @@ typedef unsigned int   u32_t;
 typedef signed   int   s32_t;
 typedef u32_t          mem_ptr_t;
 #endif /* LWIP_NO_STDINT_H */
+
+
+#define LWIP_TIMEVAL_PRIVATE    0
+
+#if !LWIP_TIMEVAL_PRIVATE
+#include <sys/time.h>
+#endif /* LWIP_TIMEVAL_PRIVATE */
 
 
 /* define compiler specific symbols */
@@ -88,11 +96,22 @@ typedef u32_t          mem_ptr_t;
 
 #endif
 
-#include "sys_arch.h"
 
-// non-fatal, print a message.
-#define LWIP_PLATFORM_DIAG(x)                     do {printf x;printf("\r\n");} while(0)
-// fatal, print message and abandon execution.
-#define LWIP_PLATFORM_ASSERT(x)		sys_assert( x , __FILE__, __LINE__)
+#ifdef __GNUC__
+#define IN_ADDR_T_DEFINED
+#endif /* __GNUC__ */
+
+
+// #define LWIP_RAM_HEAP_POINTER       ram_heap
+extern u8_t *LWIP_RAM_HEAP_POINTER;
+
+
+/* non-fatal, print a message. */
+#include <stdio.h>
+#define LWIP_PLATFORM_DIAG(x)       do {printf x;/*printf("\r\n");*/} while(0)
+/* fatal, print message and abandon execution. */
+#define LWIP_PLATFORM_ASSERT(x)     sys_assert( x , __FILE__, __LINE__)
+extern void sys_assert( char *pcMessage , char *File, int Line);
+
 
 #endif /* __CC_H__ */

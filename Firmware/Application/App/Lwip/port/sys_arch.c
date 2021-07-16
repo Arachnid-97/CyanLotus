@@ -108,6 +108,9 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 {
 	err_t err_sem = ERR_MEM;
 
+//    LWIP_UNUSED_ARG(count);
+    LWIP_ASSERT("sem != NULL", sem != NULL);
+
     if( count > 1U )
     {
         *sem = xSemaphoreCreateCounting( count, count );
@@ -144,6 +147,8 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count)
  */
 void sys_sem_free(sys_sem_t *sem)
 {
+    LWIP_ASSERT("sem != NULL", sem != NULL);
+
 	/* Sanity check */
 	if ( sem != SYS_SEM_NULL ) {
 		SYS_STATS_DEC(sem.used);
@@ -159,6 +164,8 @@ void sys_sem_free(sys_sem_t *sem)
  */
 void sys_sem_signal(sys_sem_t *sem)
 {
+    LWIP_ASSERT("sem != NULL", sem != NULL);
+
 	xSemaphoreGive( *sem );
 }
 
@@ -186,6 +193,8 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 	TickType_t Elapsed;
 	unsigned long Return;
 
+    LWIP_ASSERT("sem != NULL", sem != NULL);
+    
     StartTime = xTaskGetTickCount();
 
     if( timeout != 0UL )
@@ -261,6 +270,8 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
 {
 	err_t err_mutex = ERR_MEM;
 
+    LWIP_ASSERT("mutex != NULL", mutex != NULL);
+
     *mutex = xSemaphoreCreateMutex();
 
     if( *mutex != SYS_SEM_NULL )
@@ -283,6 +294,8 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
  */
 void sys_mutex_free(sys_mutex_t *mutex)
 {
+    LWIP_ASSERT("mutex != NULL", mutex != NULL);
+    
 	/* Sanity check */
 	if ( mutex != SYS_SEM_NULL ) {
 		SYS_STATS_DEC( mutex.used );
@@ -298,6 +311,8 @@ void sys_mutex_free(sys_mutex_t *mutex)
  */
 void sys_mutex_lock(sys_mutex_t *mutex)
 {
+    LWIP_ASSERT("mutex != NULL", mutex != NULL);
+
     while( xSemaphoreTake( *mutex, portMAX_DELAY ) != pdPASS );
 }
 
@@ -308,6 +323,8 @@ void sys_mutex_lock(sys_mutex_t *mutex)
  */
 void sys_mutex_unlock(sys_mutex_t *mutex)
 {
+    LWIP_ASSERT("mutex != NULL", mutex != NULL);
+
 	xSemaphoreGive(*mutex);
 }
 
@@ -350,13 +367,15 @@ void sys_mutex_set_invalid(sys_mutex_t *mutex)
  *
  * \return ERR_OK if successfull or ERR_MEM on error.
  */
-err_t sys_mbox_new(sys_mbox_t *mBoxNew, int size )
+err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 {
 	err_t err_mbox = ERR_MEM;
 
-    *mBoxNew = xQueueCreate( size, sizeof( void * ) );
+    LWIP_ASSERT("mbox != NULL", mbox != NULL);
 
-    if( *mBoxNew != SYS_MBOX_NULL )
+    *mbox = xQueueCreate( size, sizeof( void * ) );
+
+    if( *mbox != SYS_MBOX_NULL )
     {
         err_mbox = ERR_OK;
         SYS_STATS_INC_USED( mbox );
@@ -376,6 +395,9 @@ err_t sys_mbox_new(sys_mbox_t *mBoxNew, int size )
 void sys_mbox_free(sys_mbox_t *mbox)
 {
 	unsigned long MessagesWaiting;
+
+    LWIP_ASSERT("mbox != NULL", mbox != NULL);
+    LWIP_ASSERT("mbox not empty", !uxQueueMessagesWaiting(*mbox));
 
     MessagesWaiting = uxQueueMessagesWaiting( *mbox );
 
@@ -405,6 +427,8 @@ void sys_mbox_free(sys_mbox_t *mbox)
  */
 void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 {
+    LWIP_ASSERT("mbox != NULL", mbox != NULL);
+
     while( xQueueSendToBack( *mbox, &msg, portMAX_DELAY ) != pdTRUE );
 }
 
@@ -420,6 +444,8 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 {
 	err_t err_mbox = ERR_MEM;
     portBASE_TYPE taskToWake = pdFALSE;
+
+    LWIP_ASSERT("mbox != NULL", mbox != NULL);
 
 #ifdef __CA7_REV
     if (SystemGetIRQNestingLevel())
@@ -481,6 +507,8 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 	void *dummyptr;
 	unsigned long Return;
 
+    LWIP_ASSERT("mbox != NULL", mbox != NULL);
+
 	StartTime = xTaskGetTickCount();
 
 	if ( msg == NULL )
@@ -521,6 +549,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
     return Return; // return time blocked TODO test
 }
 
+#ifndef sys_arch_mbox_tryfetch
 /**
  * \brief This is similar to sys_arch_mbox_fetch, however if a message is not
  * present in the mailbox, it immediately returns with the code SYS_MBOX_EMPTY.
@@ -539,6 +568,8 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 	void *dummyptr;
 	unsigned long Return;
 
+    LWIP_ASSERT("mbox != NULL", mbox != NULL);
+
     if( msg== NULL )
     {
         msg = &dummyptr;
@@ -555,6 +586,7 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 
     return Return;
 }
+#endif
 
 #ifndef sys_mbox_valid
 /**
@@ -692,7 +724,17 @@ void sys_arch_unprotect(sys_prot_t pval)
 
 u32_t sys_now(void)
 {
-    uint32_t SysTime;
-	return SysTime;
+#ifdef __CA7_REV
+    if (SystemGetIRQNestingLevel())
+#else
+    if (__get_IPSR())
+#endif
+    {
+        return xTaskGetTickCountFromISR();
+    }
+    else
+    {
+        return xTaskGetTickCount();
+    }
 }
 

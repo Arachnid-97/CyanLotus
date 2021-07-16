@@ -20,11 +20,18 @@ TARGET = Application
 VERSIONS ?= \"V0.0.1\"
 
 # Memory size
-MEM_SIZE ?= 192
-FLASH_SIZE ?= 2048
+MEM_SIZE_FLASH ?= 2048K
+MEM_SIZE_RAM ?= 192K
+MEM_SIZE_CCM ?= 64K
 
 # Offset Address
-OFFSET_ADDR ?= 0x00000000
+OFFSET_ADDRESS ?= 0x00000000
+
+BASE_ADDRESS = 0x08000000
+
+BASE_ADDRESS := $(shell echo $(BASE_ADDRESS) | tr a-z A-Z)
+OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
+
 
 ######################################
 # building variables
@@ -40,75 +47,118 @@ OPT = -Og
 #######################################
 # paths
 #######################################
+# Path to the base address
+PATHS_BASE ?= .
+
 # Build path
-BUILD_DIR = build
+BUILD_DIR = $(PATHS_BASE)/build
+
+# middleware path
+MIDDLEWARE_DIR = $(PATHS_BASE)/middleware
 
 # user path
-SUBDIRS = App
+SUBDIRS ?= $(PATHS_BASE)/App
 
-Drivers_Src = Drivers/STM32F4xx_StdPeriph_Driver/src
 
-USER_SRC = # $(wildcard $(SUBDIRS)/*.c)
-USER_SRC += $(wildcard $(SUBDIRS)/MD5/*.c) \
-# $(SUBDIRS)/OLED12864/oled12864_drv.c \
-# $(SUBDIRS)/OLED12864/oled_extend.c \
-# $(SUBDIRS)/AD9833/afg_wfg.c
+#######################################
+# Source file
+#######################################
+# user source
+USER_SRC = $(wildcard $(SUBDIRS)/*.c)
+USER_SRC +=  \
+$(wildcard $(SUBDIRS)/MD5/*.c) \
+$(SUBDIRS)/SysGuard/sys_guard.c \
+$(SUBDIRS)/Lwip/netconf.c \
+$(SUBDIRS)/Lwip/port/sys_arch.c \
+$(SUBDIRS)/Lwip/port/ethernetif/ethernetif.c \
+$(SUBDIRS)/ETH/eth_socket.c \
 
-MIDDLEWARE_SRC =  \
-middleware/cJSON/cJSON.c \
-$(wildcard middleware/FreeRTOS/FreeRTOS/Source/*.c) \
-middleware/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
-middleware/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c \
+# middleware source
+MIDDLEWARE_SRC +=  \
+$(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/*.c) \
+$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
+$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c
 
+MIDDLEWARE_SRC +=  \
+$(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/api/*.c) \
+$(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/core/*.c) \
+$(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/core/ipv4/*.c) \
+$(MIDDLEWARE_DIR)/lwip-2.0.3/src/netif/ethernet.c \
+$(MIDDLEWARE_DIR)/lwip-2.0.3/src/netif/lowpan6.c \
+
+MIDDLEWARE_SRC += $(MIDDLEWARE_DIR)/cJSON/cJSON.c
+
+# MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/ff14/source/*.c)
+
+
+#######################################
+# Include path
+#######################################
 # user includes
 USER_INC =  \
 -I$(SUBDIRS) \
 -I$(SUBDIRS)/MD5 \
--I$(SUBDIRS)/Fatfs
+-I$(SUBDIRS)/SysGuard \
+-I$(SUBDIRS)/Fatfs \
+-I$(SUBDIRS)/Lwip \
+-I$(SUBDIRS)/Lwip/port \
+-I$(SUBDIRS)/Lwip/port/arch \
+-I$(SUBDIRS)/Lwip/port/ethernetif \
+-I$(SUBDIRS)/ETH \
 
+# middleware includes
+MIDDLEWARE_INC +=  \
+-I$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/include \
+-I$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F
 
-MIDDLEWARE_INC =  \
--Imiddleware/cJSON \
--Imiddleware/FreeRTOS/FreeRTOS/Source/include \
--Imiddleware/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F \
--Imiddleware/ff14/source \
+MIDDLEWARE_INC +=  \
+-I$(MIDDLEWARE_DIR)/lwip-2.0.3/src/include \
+-I$(MIDDLEWARE_DIR)/lwip-2.0.3/src/include/lwip \
+-I$(MIDDLEWARE_DIR)/lwip-2.0.3/src/include/netif
+
+MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/cJSON
+
+MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/ff14/source
 
 
 ######################################
 # source
 ######################################
+Drivers_Src = Drivers/STM32F4xx_StdPeriph_Driver/src
+
 # C sources
 C_SOURCES =  \
-syscalls.c \
-Core/main.c \
-Core/stm32f4xx_it.c \
-Core/system_stm32f4xx.c \
-$(Drivers_Src)/misc.c \
-$(Drivers_Src)/stm32f4xx_rcc.c \
-$(Drivers_Src)/stm32f4xx_gpio.c \
-$(Drivers_Src)/stm32f4xx_usart.c \
-Core/Src/bsp_uart.c \
-Core/Src/bsp_clock.c \
-Core/Src/bsp.c \
-# $(Drivers_Src)/stm32f1xx_hal.c \
-# $(Drivers_Src)/stm32f1xx_hal_rcc.c \
-# $(Drivers_Src)/stm32f1xx_hal_rcc_ex.c \
-# $(Drivers_Src)/stm32f1xx_hal_gpio.c \
-# $(Drivers_Src)/stm32f1xx_hal_dma.c \
-# $(Drivers_Src)/stm32f1xx_hal_cortex.c \
-# $(Drivers_Src)/stm32f1xx_hal_pwr.c \
-# $(Drivers_Src)/stm32f1xx_hal_flash.c \
-# $(Drivers_Src)/stm32f1xx_hal_flash_ex.c \
-# $(Drivers_Src)/stm32f1xx_hal_exti.c \
-#Core/Src/usart.c \
+$(PATHS_BASE)/syscalls.c \
+$(PATHS_BASE)/Core/main.c \
+$(PATHS_BASE)/Core/stm32f4xx_it.c \
+$(PATHS_BASE)/Core/system_stm32f4xx.c \
+$(PATHS_BASE)/$(Drivers_Src)/misc.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_rcc.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_gpio.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_usart.c \
+$(PATHS_BASE)/Core/Src/bsp_uart.c \
+$(PATHS_BASE)/Core/Src/bsp_clock.c \
+$(PATHS_BASE)/Core/Src/bsp.c \
+$(PATHS_BASE)/Core/Src/stm32f4x7_eth_bsp.c \
+$(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_syscfg.c \
+
 
 C_SOURCES += $(USER_SRC)
 C_SOURCES += $(MIDDLEWARE_SRC)
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32f429xx.s
+$(PATHS_BASE)/startup_stm32f429xx.s
 
+
+#######################################
+# openocd
+#######################################
+OPENOCD           ?= openocd
+OPENOCD_INTERFACE ?= interface/stlink.cfg
+OPENOCD_CMDS      ?=
+OPENOCD_TARGET    ?= target/stm32f4x.cfg
 
 #######################################
 # binaries
@@ -158,7 +208,7 @@ C_DEFS =  \
 # -DDATA_IN_ExtSDRAM
 
 C_DEFS += -DFIRMWARE_VERSIONS=$(VERSIONS)
-C_DEFS += -DXBDDD=$(OFFSET_ADDR)
+C_DEFS += -DXBDDD=$(OFFSET_ADDRESS)
 
 ifeq ($(DEBUG), 1)
 C_DEFS += -DUSE_FULL_ASSERT
@@ -169,11 +219,12 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
--IDrivers/CMSIS/Include \
--IDrivers/STM32F4xx_StdPeriph_Driver/inc \
--ICore \
--ICore/Inc
+-I$(PATHS_BASE)/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
+-I$(PATHS_BASE)/Drivers/CMSIS/Include \
+-I$(PATHS_BASE)/Drivers/STM32F4xx_StdPeriph_Driver/inc \
+-I$(PATHS_BASE)/Core \
+-I$(PATHS_BASE)/Core/Inc \
+-I$(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/inc \
 
 C_INCLUDES += $(USER_INC)
 C_INCLUDES += $(MIDDLEWARE_INC)
@@ -185,17 +236,24 @@ CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
+
+# Prevent silent errors when converting between types (requires explicit casting)
+# CFLAGS += -Wconversion
+
+VERSIONS = \"V9.9.9\"
 endif
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
+# Compile the standard
+CFLAGS += -std=gnu11
 
 #######################################
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32F429ZI_FLASH.ld
+LDSCRIPT = $(PATHS_BASE)/STM32F429ZI_FLASH.ld
 
 # newlib library
 CLIBS = -specs=nano.specs
@@ -222,13 +280,13 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
+$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	@$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
-	@echo compiling $(notdir $(<:.c=.c))...
+	@echo compiling $(notdir $<)...
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	@$(AS) -c $(CFLAGS) $< -o $@
-	@echo assembling $(notdir $(<:.s=.s))...
+	@echo assembling $(notdir $<)...
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
@@ -242,7 +300,24 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@	
 	
 $(BUILD_DIR):
-	mkdir $@		
+	mkdir -p $@
+
+
+# This define n-thing is a standard hack to get newlines in GNU Make.
+define n
+
+
+endef
+
+# Make sure that the submodules are up to date.
+# Check if there are any files in the vendor directories, if not warn the user.
+ifeq ($(wildcard $(MIDDLEWARE_DIR)/*/*),)
+  $(error $n                                                                   \
+    The submodules does not seem to be present, consider fetching them by:$n   \
+      $$ git submodule init$n                                                  \
+      $$ git submodule update$n                                                \
+  )
+endif
 
 
 #######################################
@@ -259,22 +334,54 @@ clean:
 #######################################
 # Memory usage
 #######################################
-sizes: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
-	@arr=(`$(PREFIX)size $(BUILD_DIR)/$(TARGET).elf | sed -n '2p'`); \
-	let flash=($${arr[0]}+$${arr[1]}); \
-	let mem=($${arr[1]}+$${arr[2]}); \
-	let flash_size=$(subst K,,$(FLASH_SIZE))*1024; \
-	let mem_size=$(subst K,,$(MEM_SIZE))*1024; \
-	# flash_usage=`echo "scale=2;($$flash*100/$$flash_size)" | bc`; \
-	# mem_usage=`echo "scale=2;($$mem*100/$$mem_size)" | bc`; \
-	flash_usage1=`echo "scale=2; a=$$flash*100/$$flash_size; if (length(a)==scale(a)) print 0;print a" | bc`;\
-	mem_usage1=`echo "scale=2; a=$$mem*100/$$mem_size; if (length(a)==scale(a)) print 0;print a " | bc`;\
-	echo ""; \
-	echo "-------------------------------------------------------------"; \
-	echo "Flash: $$flash / $$flash_size bytes, $$flash_usage1% Full (.text + .data)"; \
-	echo "SRAM:  $$mem / $$mem_size bytes, $$mem_usage1% Full (.data + .bss)"
+sizes: $(BUILD_DIR)/$(TARGET).elf
+	@if [ -f "$<" ]; then \
+		arr=(`$(SZ) $< | sed -n '2p'`); \
+		let flash=($${arr[0]}+$${arr[1]}); \
+		let mem=($${arr[1]}+$${arr[2]}); \
+		let flash_size=$(subst K,,$(MEM_SIZE_FLASH))*1024; \
+		let mem_size=$(subst K,,$(MEM_SIZE_RAM))*1024; \
+		# flash_usage=`echo "scale=2;($$flash*100/$$flash_size)" | bc`; \
+		# mem_usage=`echo "scale=2;($$mem*100/$$mem_size)" | bc`; \
+		flash_usage1=`echo "scale=2; a=$$flash*100/$$flash_size; if (length(a)==scale(a)) print 0;print a" | bc`;\
+		mem_usage1=`echo "scale=2; a=$$mem*100/$$mem_size; if (length(a)==scale(a)) print 0;print a " | bc`;\
+		echo ""; \
+		echo "-------------------------------------------------------------"; \
+		echo "Flash: $$flash / $$flash_size bytes, $$flash_usage1% Full (.text + .data)"; \
+		echo "SRAM:  $$mem / $$mem_size bytes, $$mem_usage1% Full (.data + .bss)"; \
+	else \
+		echo "note: No such file of $(BUILD_DIR)/$(TARGET).elf"; \
+		echo ""; \
+		echo ">> Please 'make -j8' build the project file <<"; \
+		exit $$?; \
+	fi;
 
 mapinfo: 
-	readelf -all $(BUILD_DIR)/$(TARGET).elf
+	@if [ -f "$(BUILD_DIR)/$(TARGET).elf" ]; then \
+		readelf -all $(BUILD_DIR)/$(TARGET).elf; \
+	else \
+		echo "note: No such file of $(BUILD_DIR)/$(TARGET).elf"; \
+		echo ""; \
+		echo ">> Please 'make -j8' build the project file <<"; \
+		exit $$?; \
+	fi;
+
+
+reset:
+	$(OPENOCD) -d0 -f $(OPENOCD_INTERFACE) $(OPENOCD_CMDS) -f $(OPENOCD_TARGET) -c init -c targets \
+	-c 'reset run' -c shutdown
+
+install: $(BUILD_DIR)/$(TARGET).bin
+	@base_addr=$(subst 0X,,$(BASE_ADDRESS)); \
+	offset_addr=$(subst 0X,,$(OFFSET_ADDRESS)); \
+	load_addr=`echo "obase=10;ibase=16;$$base_addr+$$offset_addr" | bc`; \
+	$(OPENOCD) -d2 -f $(OPENOCD_INTERFACE) $(OPENOCD_CMDS) -f $(OPENOCD_TARGET) -c init -c targets \
+				-c "reset halt"	-c "flash write_image erase $(BUILD_DIR)/$(TARGET).bin $$load_addr bin" \
+				-c "verify_image $(BUILD_DIR)/$(TARGET).bin $$load_addr bin" -c "reset run" -c shutdown
+
+
+
+.PHONY: sizes all clean build mapinfo reset install
+
 
 # *** EOF ***

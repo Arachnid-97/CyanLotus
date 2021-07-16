@@ -30,6 +30,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 
+#include "bsp_uart.h"
+
 /** @addtogroup Template_Project
   * @{
   */
@@ -61,6 +63,8 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
+  printf("HardFault\n");
+  
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {

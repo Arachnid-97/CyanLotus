@@ -24,8 +24,10 @@
 #include "stm32f4xx.h"
 
 /* Private app includes. */
-#include "bsp_uart.h"
 #include "bsp_clock.h"
+#include "bsp_uart.h"
+#include "sys_guard.h"
+#include "eth_socket.h"
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -138,12 +140,11 @@ static void prvUser_Task( void *pvParameters )
 	cJSON_mem.free_fn = vPortFree;
 	cJSON_InitHooks(&cJSON_mem);
 
-    printf("Hello world!!!");
-    fflush(stdout);
-
     /* User-defined private tasks */
+	// xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
+    xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-
+//	printf("prvUser_Task delete.\r\n\n");
     vTaskDelete(UserTaskCreate_Handle);		// 删除自己
 }
 
@@ -155,7 +156,7 @@ static void prvUser_Task( void *pvParameters )
 *************************************************/
 static void prvSetupHardware( void )
 {
-    HSI_SetSysClock(16, 432, 2, 7);
+    HSI_SetSysClock(16, 360, 2, 9);
 
     /* Set the Vector Table base location at 0x08000000 + XBDDD */
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, XBDDD);
@@ -192,7 +193,6 @@ static void prvSetupHardware( void )
   */
 #ifdef  USE_FULL_ASSERT
 /* Keep the linker happy. */
-// void assert_failed( unsigned char* file, unsigned int line )
 void assert_failed(uint8_t* file, uint32_t line)
 {
     /* User can add his own implementation to report the file name and line number,

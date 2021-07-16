@@ -18,7 +18,7 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "runToMain": false,
+            "runToMain": true,
             "preLaunchTask": "Debug",   // 在调试前预先执行的任务，此处是tasks.json中的
         }
     ]

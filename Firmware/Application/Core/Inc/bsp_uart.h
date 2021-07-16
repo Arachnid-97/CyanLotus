@@ -5,6 +5,8 @@
 #include "stm32f4xx.h"
 #include <stdio.h>
 
+// #define DEBUG_PRINT_ON_UART
+#define DEBUG_PRINT_ON_SWO
 
 #define DEBUG_USART                 USART1
 #define DEBUG_USART_CLK             RCC_APB2Periph_USART1
@@ -28,6 +30,50 @@
 
 #define TxBUFFER_SIZE               100
 #define RxBUFFER_SIZE               0xFF
+
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+extern SemaphoreHandle_t MuxSem_UartPrintf;
+extern uint8_t g_DebugPrintf_flag;
+#define RAW_PRINTF(type,fmt,arg...)			do{\
+											if(type || g_DebugPrintf_flag){\
+												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
+												printf(""fmt"",##arg);\
+												xSemaphoreGive(MuxSem_UartPrintf);}\
+											}while(0)
+
+#ifndef USER_DEBUG
+#define USER_DEBUG				0
+#endif
+#define DEBUG_PRINTF(fmt,arg...)			do{\
+											if(USER_DEBUG || g_DebugPrintf_flag){\
+												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
+												printf("<<-DEBUG->> %s > "fmt"",__FUNCTION__, ##arg);\
+												xSemaphoreGive(MuxSem_UartPrintf);}\
+											}while(0)
+
+#ifndef USER_INFO
+#define USER_INFO				1
+#endif
+#define INFO_PRINTF(fmt,arg...)			do{\
+											if(USER_INFO || g_DebugPrintf_flag){\
+												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
+												printf("<<-INFO->> "fmt"",##arg);\
+												xSemaphoreGive(MuxSem_UartPrintf);}\
+											}while(0)
+
+#ifndef USER_LOG
+#define USER_LOG                1
+#endif
+#define LOG_PRINTF(type,fmt,arg...)			do{\
+											if(USER_LOG || g_DebugPrintf_flag){\
+												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
+												printf("<<-%s->> %s > "fmt"",#type,__FUNCTION__, ##arg);\
+												xSemaphoreGive(MuxSem_UartPrintf);}\
+											}while(0)
 
 typedef struct
 {

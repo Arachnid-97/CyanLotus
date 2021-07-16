@@ -103,7 +103,7 @@
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
 a lot of data that needs to be copied, this should be set high. */
-#define MEM_SIZE                 (50*1024)
+#define MEM_SIZE                 (10*1024)
 
 /* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
    sends a lot of data out of ROM (or other static memory), this
@@ -248,7 +248,6 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
    ---------- Lwip Debug options ----------
    ----------------------------------------
 */
-#ifdef USE_FULL_ASSERT
 #define LWIP_DEBUG
 #ifdef LWIP_DEBUG
 #define U8_F  "c"
@@ -263,8 +262,10 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define SZT_F "u"
 #endif /* LWIP_DEBUG */
 
-#define API_MSG_DEBUG		LWIP_DBG_ON
-#endif /* USE_FULL_ASSERT */
+//#define API_MSG_DEBUG       LWIP_DBG_ON
+//#define SOCKETS_DEBUG       LWIP_DBG_ON
+//#define TCP_INPUT_DEBUG     LWIP_DBG_ON
+//#define TCP_DEBUG           LWIP_DBG_ON
 
 
 /*
@@ -272,8 +273,23 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
    ---------- OS options -----------
    ---------------------------------
 */
+/**
+ * TCPIP_MBOX_SIZE: The mailbox size for the tcpip thread messages
+ * The queue size value itself is platform-dependent, but is passed to
+ * sys_mbox_new() when tcpip_init is called.
+ */
 #define TCPIP_MBOX_SIZE                 32
+/**
+ * TCPIP_THREAD_STACKSIZE: The stack size used by the main tcpip thread.
+ * The stack size value itself is platform-dependent, but is passed to
+ * sys_thread_new() when the thread is created.
+ */
 #define TCPIP_THREAD_STACKSIZE          1024
+/**
+ * TCPIP_THREAD_PRIO: The priority assigned to the main tcpip thread.
+ * The priority value itself is platform-dependent, but is passed to
+ * sys_thread_new() when the thread is created.
+ */
 #define TCPIP_THREAD_PRIO               (configMAX_PRIORITIES - 3)
 
 /**
@@ -281,13 +297,13 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  * The stack size value itself is platform-dependent, but is passed to
  * sys_thread_new() when the thread is created.
  */
-#define DEFAULT_THREAD_STACKSIZE       (6 * 128)
+#define DEFAULT_THREAD_STACKSIZE        (6 * 128)
 /**
  * DEFAULT_THREAD_PRIO: The priority assigned to any other lwIP thread.
  * The priority value itself is platform-dependent, but is passed to
  * sys_thread_new() when the thread is created.
  */
-#define DEFAULT_THREAD_PRIO            3
+#define DEFAULT_THREAD_PRIO             (TCPIP_THREAD_PRIO - 2)
 
 /**
  * DEFAULT_RAW_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
@@ -295,26 +311,26 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  * to sys_mbox_new() when the recvmbox is created.
  */
 #if LWIP_RAW
-#define DEFAULT_RAW_RECVMBOX_SIZE      12
+#define DEFAULT_RAW_RECVMBOX_SIZE       12
 #endif
 /**
  * DEFAULT_UDP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
  * NETCONN_UDP. The queue size value itself is platform-dependent, but is passed
  * to sys_mbox_new() when the recvmbox is created.
  */
-#define DEFAULT_UDP_RECVMBOX_SIZE      2000
+#define DEFAULT_UDP_RECVMBOX_SIZE       2000
 /**
  * DEFAULT_TCP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
  * NETCONN_TCP. The queue size value itself is platform-dependent, but is passed
  * to sys_mbox_new() when the recvmbox is created.
  */
-#define DEFAULT_TCP_RECVMBOX_SIZE      2000
+#define DEFAULT_TCP_RECVMBOX_SIZE       2000
 /**
  * DEFAULT_ACCEPTMBOX_SIZE: The mailbox size for the incoming connections.
  * The queue size value itself is platform-dependent, but is passed to
  * sys_mbox_new() when the acceptmbox is created.
  */
-#define DEFAULT_ACCEPTMBOX_SIZE        2000
+#define DEFAULT_ACCEPTMBOX_SIZE         2000
 
 
 #if (LWIP_DNS || LWIP_IGMP || LWIP_IPV6) && !defined(LWIP_RAND)
@@ -324,25 +340,54 @@ u32_t lwip_rand(void);
 #define LWIP_RAND() lwip_rand()
 #endif
 
-#include "arch/cc.h"
-extern u8_t *ram_heap;
-#define LWIP_RAM_HEAP_POINTER          ram_heap
 
 /*
    ---------------------------------
    ---------- User options ---------
    ---------------------------------
 */
+/**
+ * LWIP_TCP_KEEPALIVE==1: Enable TCP_KEEPIDLE, TCP_KEEPINTVL and TCP_KEEPCNT
+ * options processing. Note that TCP_KEEPIDLE and TCP_KEEPINTVL have to be set
+ * in seconds. (does not require sockets.c, and will affect tcp.c)
+ */
+#define LWIP_TCP_KEEPALIVE              1
+// #define TCP_KEEPIDLE_DEFAULT            12000	// 12秒内连接双方都无数据，则发起保活探测（该值默认为 2小时）
+// #define TCP_KEEPINTVL_DEFAULT           5000	// 每 5秒发送一次保活探测
+// #define TCP_KEEPCNT_DEFAULT             3		// 一共发送 3次保活探测包，如果这 3个包对方均无回应，则表示连接异常，内核关闭连接，并发送 err回调到用户程序
 
-#define LWIP_TCP_KEEPALIVE             1
-#define TCP_KEEPIDLE_DEFAULT           12000	// 12秒内连接双方都无数据，则发起保活探测（该值默认为2小时）
-#define TCP_KEEPINTVL_DEFAULT          5000	// 每5秒发送一次保活探测
-#define TCP_KEEPCNT_DEFAULT            3		// 一共发送3次保活探测包，如果这3个包对方均无回应，则表示连接异常，内核关闭连接，并发送err回调到用户程序
+/**
+ * MEMP_NUM_NETBUF: the number of struct netbufs.
+ * (only needed if you use the sequential API, like api_lib.c)
+ */
+#define MEMP_NUM_NETBUF                 4
 
-#define MEMP_NUM_NETBUF                4
-#define LWIP_NETIF_LINK_CALLBACK       1
-#define MEMP_OVERFLOW_CHECK            0
+/**
+ * LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
+ * whenever the link changes (i.e., link down)
+ */
+#define LWIP_NETIF_LINK_CALLBACK        1
 
+/**
+ * MEMP_OVERFLOW_CHECK: memp overflow protection reserves a configurable
+ * amount of bytes before and after each memp element in every pool and fills
+ * it with a prominent default value.
+ *    MEMP_OVERFLOW_CHECK == 0 no checking
+ *    MEMP_OVERFLOW_CHECK == 1 checks each element when it is freed
+ *    MEMP_OVERFLOW_CHECK >= 2 checks each element in every pool every time
+ *      memp_malloc() or memp_free() is called (useful but slow!)
+ */
+#define MEMP_OVERFLOW_CHECK             0
+
+
+//#define LWIP_TCPIP_TIMEOUT             1
+
+//#define LWIP_TCPIP_CORE_LOCKING        0
+
+//#define LWIP_NETCONN_SEM_PER_THREAD    1
+//#define LWIP_NETCONN_THREAD_SEM_GET()
+//#define LWIP_NETCONN_THREAD_SEM_ALLOC()
+//#define LWIP_NETCONN_THREAD_SEM_FREE()
 
 #endif /* __LWIPOPTS_H__ */
 

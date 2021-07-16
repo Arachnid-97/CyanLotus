@@ -63,45 +63,6 @@
 * @{
 */ 
 
-#if defined   (__CC_ARM) /*!< ARM Compiler */
-__align(4) 
-ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];/* Ethernet Rx MA Descriptor */
-__align(4) 
-ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];/* Ethernet Tx DMA Descriptor */
-__align(4) 
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
-__align(4) 
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
-
-#elif defined ( __ICCARM__ ) /*!< IAR Compiler */
-#pragma data_alignment=4
-ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];/* Ethernet Rx MA Descriptor */
-#pragma data_alignment=4
-ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];/* Ethernet Tx DMA Descriptor */
-#pragma data_alignment=4
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
-#pragma data_alignment=4
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
-
-#elif defined (__GNUC__) /*!< GNU Compiler */
-ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB] __attribute__ ((aligned (4))); /* Ethernet Rx DMA Descriptor */
-ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB] __attribute__ ((aligned (4))); /* Ethernet Tx DMA Descriptor */
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __attribute__ ((aligned (4))); /* Ethernet Receive Buffer */
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __attribute__ ((aligned (4))); /* Ethernet Transmit Buffer */
-
-#elif defined  (__TASKING__) /*!< TASKING Compiler */
-__align(4) 
-ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];/* Ethernet Rx MA Descriptor */
-__align(4) 
-ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];/* Ethernet Tx DMA Descriptor */
-__align(4) 
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
-__align(4) 
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
-
-#endif /* __CC_ARM */
-
-
 /* Global pointers on Tx and Rx descriptor used to track transmit and receive descriptors */
 __IO ETH_DMADESCTypeDef  *DMATxDescToSet;
 __IO ETH_DMADESCTypeDef  *DMARxDescToGet;
@@ -134,7 +95,7 @@ __IO uint32_t Frame_Rx_index;
   * @param  nCount: specifies the delay time length.
   * @retval None
   */
-static void ETH_Delay(__IO uint32_t nCount)
+void ETH_Delay(__IO uint32_t nCount)
 {
   __IO uint32_t index = 0; 
   for(index = nCount; index != 0; index--)
@@ -273,7 +234,6 @@ void ETH_StructInit(ETH_InitTypeDef* ETH_InitStruct)
 uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
 {
   uint32_t RegValue = 0, tmpreg = 0;
-  __IO uint32_t i = 0;
   RCC_ClocksTypeDef  rcc_clocks;
   uint32_t hclk = 60000000;
   __IO uint32_t timeout = 0, err = ETH_SUCCESS;

@@ -55,6 +55,24 @@ typedef TaskHandle_t sys_thread_t;
 #define sys_sem_valid( x ) ( ( ( *x ) == NULL) ? pdFALSE : pdTRUE )
 #define sys_sem_set_invalid( x ) ( ( *x ) = NULL )
 
+//#include "lwipopts.h"
+//#if LWIP_NETCONN_SEM_PER_THREAD
+#define LWIP_NETCONN_THREAD_SEM_GET() ((sys_sem_t*)pvTaskGetThreadLocalStoragePointer(NULL, 1))
+#define LWIP_NETCONN_THREAD_SEM_ALLOC() do {                                                                    \
+                                                sys_sem_t* pSem = (sys_sem_t*)pvPortMalloc(sizeof(sys_sem_t));  \
+                                                if (ERR_OK == sys_sem_new(pSem, 0)) {                           \
+                                                    vTaskSetThreadLocalStoragePointer(NULL, 1, (void*)pSem);    \
+                                                }                                                               \
+                                           } while(0)
+#define LWIP_NETCONN_THREAD_SEM_FREE()  do {                                                                    \
+                                                sys_sem_t* pSem = LWIP_NETCONN_THREAD_SEM_GET();                \
+                                                sys_sem_free(pSem);                                             \
+                                                vPortFree(pSem);                                                \
+                                                vTaskSetThreadLocalStoragePointer(NULL, 1, NULL);               \
+                                           } while(0)
+//#endif /* LWIP_NETCONN_SEM_PER_THREAD */
+
+                                           
 #else /* NO_SYS */ /* Bare-metal */
 
 #if defined(__cplusplus)
@@ -75,8 +93,6 @@ typedef unsigned long sys_prot_t;
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
-
-void sys_assert( char *pcMessage , char *File, int Line);
 
 #if defined(__cplusplus)
 }

@@ -18,11 +18,17 @@
 #define BAUDRATE_1 115200; // 波特率设置	支持的波特率：115200,19200,9600,38400,57600,1200,2400,4800
 #define BAUDRATE_2 115200; // 波特率设置	支持的波特率：115200,19200,9600,38400,57600,1200,2400,4800
 
+#ifdef DEBUG_PRINT_ON_SWO
+volatile int32_t ITM_RxBuffer;
+#endif /* DEBUG_PRINT_ON_SWO */
+
 UartRx_Buff_TypeDef DEBUG_Uart_Rx;
 
 TaskHandle_t DebugUart_Handle = NULL;
 
 SemaphoreHandle_t MuxSem_UartPrintf = NULL;
+
+uint8_t g_DebugPrintf_flag = 0;
 
 static void prvDEBUG_USART_Rx_Task(void *pvParameters)
 {
@@ -85,9 +91,9 @@ static void DEBUG_USART_GPIO_Config(void)
     DEBUG_USART_GPIO_APBxClkCmd(DEBUG_USART_GPIO_CLK, ENABLE);
 
     /* Connect PXx to USARTx_Tx*/
-    GPIO_PinAFConfig(DEBUG_USART_TX_GPIO_PORT, DEBUG_USART_TX_AF_PIN, GPIO_AF_USART1);
+    GPIO_PinAFConfig(DEBUG_USART_TX_GPIO_PORT, DEBUG_USART_TX_AF_PIN, DEBUG_USART_GPIO_AF_MAP);
     /* Connect PXx to USARTx_Rx*/
-    GPIO_PinAFConfig(DEBUG_USART_RX_GPIO_PORT, DEBUG_USART_RX_AF_PIN, GPIO_AF_USART1);
+    GPIO_PinAFConfig(DEBUG_USART_RX_GPIO_PORT, DEBUG_USART_RX_AF_PIN, DEBUG_USART_GPIO_AF_MAP);
 
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
@@ -206,12 +212,17 @@ void USART_Printf(USART_TypeDef *USARTx, char *String)
   */
 PUTCHAR_PROTOTYPE
 {
+#ifdef DEBUG_PRINT_ON_UART
     /* 发送一个字节数据到 DEBUG_USART */
     USART_SendData(DEBUG_USART, (uint8_t)ch);
-
     /* 等待发送完毕 */
     while (USART_GetFlagStatus(DEBUG_USART, USART_FLAG_TC) == RESET)
         ;
+#elif defined DEBUG_PRINT_ON_SWO
+    ITM_SendChar(ch);
+#elif defined DEBUG_PRINT_ON_SEGGER_RTT
+
+#endif
 
     return ch;
 }
@@ -224,11 +235,19 @@ PUTCHAR_PROTOTYPE
   */
 GETCHAR_PROTOTYPE
 {
+    int ch = 0;
+#ifdef DEBUG_PRINT_ON_UART
     /* 等待 DEBUG_UART输入数据 */
     while (USART_GetFlagStatus(DEBUG_USART, USART_FLAG_RXNE) == RESET)
         ;
+    ch = (int)USART_ReceiveData(DEBUG_USART);
+#elif defined DEBUG_PRINT_ON_SWO
+    ch = ITM_ReceiveChar();
+#elif defined DEBUG_PRINT_ON_SEGGER_RTT
 
-    return (int)USART_ReceiveData(DEBUG_USART);
+#endif
+
+    return ch;
 }
 
 /************************************************************************/

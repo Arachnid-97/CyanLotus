@@ -21,7 +21,8 @@
  * p: PLLCLK时钟分频因子  ，取值2，4，6，8
  * q: OTG FS,SDIO,RNG时钟分频因子，取值4~15
  * 函数调用举例，使用HSI设置时钟
- * SYSCLK=HCLK=180M,PCLK2=HCLK/2=90M,PCLK1=HCLK/4=45M
+ * SYSCLK = HCLK = 180M,PCLK2 = HCLK/2 = 90M,PCLK1 = HCLK/4 = 45M
+ * PLL = HSI * n / (m * p) = 16MHz * 336 / (8 * 2) = 168MHz
  * HSI_SetSysClock(16, 360, 2, 7);
  * HSE作为时钟来源，经过PLL倍频作为系统时钟，这是通常的做法
 
@@ -73,6 +74,7 @@ void HSI_SetSysClock(uint32_t m, uint32_t n, uint32_t p, uint32_t q)
         }
 
         /*-----------------------------------------------------*/
+#ifdef STM32F429_439xx
         //开启 OVER-RIDE模式，以能达到更高频率
         PWR->CR |= PWR_CR_ODEN;
         while ((PWR->CSR & PWR_CSR_ODRDY) == 0)
@@ -82,6 +84,7 @@ void HSI_SetSysClock(uint32_t m, uint32_t n, uint32_t p, uint32_t q)
         while ((PWR->CSR & PWR_CSR_ODSWRDY) == 0)
         {
         }
+#endif /* STM32F429_439xx */
         // 配置FLASH预取指,指令缓存,数据缓存和等待状态
         FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_LATENCY_5WS;
         /*-----------------------------------------------------*/

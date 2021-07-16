@@ -13,7 +13,17 @@
                 "${workspaceFolder}/App/MD5",
                 "${workspaceFolder}/middleware/ff14/source",
                 "${workspaceFolder}/middleware/FreeRTOS/FreeRTOS/Source/include",
-                "${workspaceFolder}/middleware/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F"
+                "${workspaceFolder}/middleware/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F",
+                "${workspaceFolder}/Drivers/STM32F4x7_ETH_Driver/inc",
+                "${workspaceFolder}/middleware/lwip-2.0.3/src/include",
+                "${workspaceFolder}/middleware/lwip-2.0.3/src/include/lwip",
+                "${workspaceFolder}/middleware/lwip-2.0.3/src/include/netif",
+                "${workspaceFolder}/App/Lwip",
+                "${workspaceFolder}/App/Lwip/port",
+                "${workspaceFolder}/App/Lwip/port/arch",
+                "${workspaceFolder}/App/Lwip/port/ethernetif",
+                "${workspaceFolder}/App/SysGuard",
+                "${workspaceFolder}/App/ETH"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",
@@ -23,9 +33,9 @@
                 "FIRMWARE_VERSIONS=\"V0.0.1\"",
                 "XBDDD=0x00000000"
             ],
-            "compilerPath": "C:/Program Files/mingw64/bin/gcc.exe",
-            "cStandard": "c11",
-            "cppStandard": "c++17"
+            "compilerPath": "arm-none-eabi-gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++11"
         }
     ],
     "version": 4
