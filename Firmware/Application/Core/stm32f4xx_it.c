@@ -61,10 +61,96 @@ void NMI_Handler(void)
   * @param  None
   * @retval None
   */
+#define CW
+#define CORTEX_M3_M4_M7
+
+/* Exception frame without floating-point storage
+* hard fault handler in C,
+* with stack frame location as input parameter
+*/
+void
+hard_fault_handler_c(unsigned int * hardfault_args)
+{
+    unsigned int stacked_r0;
+    unsigned int stacked_r1;
+    unsigned int stacked_r2;
+    unsigned int stacked_r3;
+    unsigned int stacked_r12;
+    unsigned int stacked_lr;
+    unsigned int stacked_pc;
+    unsigned int stacked_psr;
+   
+    //Exception stack frame
+    stacked_r0 = ((unsigned long) hardfault_args[0]);
+    stacked_r1 = ((unsigned long) hardfault_args[1]);
+    stacked_r2 = ((unsigned long) hardfault_args[2]);
+    stacked_r3 = ((unsigned long) hardfault_args[3]);
+   
+    stacked_r12 = ((unsigned long) hardfault_args[4]);
+    stacked_lr = ((unsigned long) hardfault_args[5]);
+    stacked_pc = ((unsigned long) hardfault_args[6]);
+    stacked_psr = ((unsigned long) hardfault_args[7]);
+   
+    printf ("[Hard fault handler]\n");
+    printf ("R0 = %x\n", stacked_r0);
+    printf ("R1 = %x\n", stacked_r1);
+    printf ("R2 = %x\n", stacked_r2);
+    printf ("R3 = %x\n", stacked_r3);
+    printf ("R12 = %x\n", stacked_r12);
+    printf ("LR = %x\n", stacked_lr);
+    printf ("PC = %x\n", stacked_pc);
+    printf ("PSR = %x\n", stacked_psr);
+#ifndef CW
+    printf ("BFAR = %x\n", (*((volatile unsigned long *)(0xE000ED38))));
+    printf ("CFSR = %x\n", (*((volatile unsigned long *)(0xE000ED28))));
+    printf ("HFSR = %x\n", (*((volatile unsigned long *)(0xE000ED2C))));
+    printf ("DFSR = %x\n", (*((volatile unsigned long *)(0xE000ED30))));
+    printf ("AFSR = %x\n", (*((volatile unsigned long *)(0xE000ED3C))));
+#else
+    printf ("BFAR = %x\n", (*((volatile unsigned int *)(0xE000ED38))));
+    printf ("CFSR = %x\n", (*((volatile unsigned int *)(0xE000ED28))));
+    printf ("HFSR = %x\n", (*((volatile unsigned int *)(0xE000ED2C))));
+    printf ("DFSR = %x\n", (*((volatile unsigned int *)(0xE000ED30))));
+    printf ("AFSR = %x\n", (*((volatile unsigned int *)(0xE000ED3C))));
+#endif
+    for(;;)
+    {}
+}
+
+/* The prototype shows it is a naked function - in effect this is just an
+assembly function. */
+void HardFault_Handler( void ) __attribute__( ( naked ) );
+
 void HardFault_Handler(void)
 {
-  printf("HardFault\n");
-  
+  #ifdef CORTEX_M3_M4_M7
+    asm volatile(
+        " tst lr, #4                        \n" /* Check EXC_RETURN[2] */
+        " ite eq                            \n"
+        " mrseq r0, msp                     \n"
+        " mrsne r0, psp                     \n"
+        "b hard_fault_handler_c             \n"
+        : /* no output */
+        : /* no input */
+        : "r0" /* clobber */
+    );
+  #else
+    asm volatile(
+        "movs r0, #4                        \n"
+        "mov  r1, lr                        \n"
+        "tst  r0, r1                        \n" /* Check EXC_RETURN[2] */
+        "beq 1f                             \n"
+        "mrs r0, psp                        \n"
+        "ldr r1,=hard_fault_handler_c       \n"
+        "bx r1                              \n"
+        "1:mrs r0,msp                       \n"
+        "ldr r1,=hard_fault_handler_c       \n"
+        : /* no output */
+        : /* no input */
+        : "r0" /* clobber */
+    );
+  #endif
+
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
