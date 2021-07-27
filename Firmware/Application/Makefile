@@ -6,6 +6,7 @@
 # Generic Makefile (based on gcc)
 #
 # ChangeLog :
+#    2021-07-16 - Submodule detection + on-chip operation
 #    2021-05-08 - Simplify the display + complete information
 #    2017-02-10 - Several enhancements + project update mode
 #    2015-07-22 - first version
@@ -76,8 +77,13 @@ $(SUBDIRS)/ETH/eth_socket.c \
 # middleware source
 MIDDLEWARE_SRC +=  \
 $(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/*.c) \
-$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
-$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c
+# $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
+# $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c
+
+# Wrappers required to use newlib malloc-family within FreeRTOS.
+MIDDLEWARE_SRC +=  \
+$(MIDDLEWARE_DIR)/FreeRTOS_Helpers/heap_useNewlib_ST.c \
+$(MIDDLEWARE_DIR)/FreeRTOS_Helpers/port_DRN.c
 
 MIDDLEWARE_SRC +=  \
 $(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/api/*.c) \
@@ -171,11 +177,13 @@ CC = $(GCC_PATH)/$(PREFIX)gcc
 AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
+DP = $(GCC_PATH)/$(PREFIX)objdump
 else
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
+DP = $(PREFIX)objdump
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
@@ -291,6 +299,7 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	@echo linking...
+	$(DP) -D $@ > $(BUILD_DIR)/$(TARGET).asm
 	$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
@@ -310,8 +319,8 @@ define n
 endef
 
 # Make sure that the submodules are up to date.
-# Check if there are any files in the vendor directories, if not warn the user.
-ifeq ($(wildcard $(MIDDLEWARE_DIR)/*/*),)
+# Check if there are submodules files in the middleware directories, if not warn the user.
+ifeq ($(wildcard $(MIDDLEWARE_DIR)/cJSON/*),)
   $(error $n                                                                   \
     The submodules does not seem to be present, consider fetching them by:$n   \
       $$ git submodule init$n                                                  \

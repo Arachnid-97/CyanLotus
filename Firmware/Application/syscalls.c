@@ -2,6 +2,12 @@
    Files in the C namespace (ie those that do not start with an
    underscore) go in .c.  */
 
+#if defined(__cplusplus)
+extern "C" {
+#endif /* __cplusplus */
+
+#ifdef __GNUC__
+
 /* Includes */
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -19,7 +25,7 @@ extern int errno;
 extern int __io_putchar(int ch) __attribute__((weak));
 extern int __io_getchar(void) __attribute__((weak));
 
-register char * stack_ptr asm("sp");
+register char * stack_ptr __asm("sp");
 
 char *__env[1] = { 0 };
 char **environ = __env;
@@ -56,7 +62,7 @@ __attribute__((weak)) int _read(int file, char *ptr, int len)
 		*ptr++ = __io_getchar();
 	}
 
-return len;
+	return len;
 }
 
 __attribute__((weak)) int _write(int file, char *ptr, int len)
@@ -70,28 +76,28 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 	return len;
 }
 
-caddr_t _sbrk(int incr)
-{
-	extern char end asm("end");
-	static char *heap_end;
-	char *prev_heap_end;
+// caddr_t _sbrk(int incr)
+// {
+// 	extern char end __asm("end");
+// 	static char *heap_end;
+// 	char *prev_heap_end;
 
-	if (heap_end == 0)
-		heap_end = &end;
+// 	if (heap_end == 0)
+// 		heap_end = &end;
 
-	prev_heap_end = heap_end;
-	if (heap_end + incr > stack_ptr)
-	{
-//		write(1, "Heap and stack collision\n", 25);
-//		abort();
-		errno = ENOMEM;
-		return (caddr_t) -1;
-	}
+// 	prev_heap_end = heap_end;
+// 	if (heap_end + incr > stack_ptr)
+// 	{
+// //		write(1, "Heap and stack collision\n", 25);
+// //		abort();
+// 		errno = ENOMEM;
+// 		return (caddr_t) -1;
+// 	}
 
-	heap_end += incr;
+// 	heap_end += incr;
 
-	return (caddr_t) prev_heap_end;
-}
+// 	return (caddr_t) prev_heap_end;
+// }
 
 int _close(int file)
 {
@@ -161,3 +167,11 @@ int _execve(char *name, char **argv, char **env)
 	errno = ENOMEM;
 	return -1;
 }
+
+#endif /* __GNUC__ */
+
+#if defined(__cplusplus)
+}
+#endif /* __cplusplus */
+
+

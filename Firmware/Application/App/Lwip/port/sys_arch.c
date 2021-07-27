@@ -41,9 +41,9 @@
 #include "lwip/stats.h"
 
 
-#ifndef errno
-int errno = 0;
-#endif
+// #ifndef errno
+// int errno = 0;
+// #endif
 
 #define SYS_ARCH_BLOCKING_TICKTIMEOUT    ((portTickType)1000)
 

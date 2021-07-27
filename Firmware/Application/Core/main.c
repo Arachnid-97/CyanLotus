@@ -141,7 +141,7 @@ static void prvUser_Task( void *pvParameters )
 	cJSON_InitHooks(&cJSON_mem);
 
     /* User-defined private tasks */
-	// xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
+	xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
     xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
 //	printf("prvUser_Task delete.\r\n\n");
@@ -168,18 +168,18 @@ static void prvSetupHardware( void )
     // vSetupParPort();
                                                
 
-	printf("\r\n ****************************************************\r\n");
-	printf("       ___                    __          _     __\r\n");
-	printf("      /   |  _________ ______/ /_  ____  (_)___/ /\r\n");
-	printf("     / /| | / ___/ __ `/ ___/ __ \\/ __ \\/ / __  / \r\n");
-	printf("    / ___ |/ /  / /_/ / /__/ / / / / / / / /_/ /  \r\n");
-	printf("   /_/  |_/_/   \\__,_/\\___/_/ /_/_/ /_/_/\\__,_/   \r\n\n");
-	printf("   * Description      : Application entry\r\n");
-	printf("   * Release Vertion  : %s\r\n",FIRMWARE_VERSIONS);
-	printf("   * Release date     : %s\r\n",__DATE__);
-	printf("   * Note             : COPYRIGHT(c) 2021 Arachnid\r\n");
-	printf(" ****************************************************\r\n\r\n");
-    fflush(stdout);
+	// printf("\r\n ****************************************************\r\n");
+	// printf("       ___                    __          _     __\r\n");
+	// printf("      /   |  _________ ______/ /_  ____  (_)___/ /\r\n");
+	// printf("     / /| | / ___/ __ `/ ___/ __ \\/ __ \\/ / __  / \r\n");
+	// printf("    / ___ |/ /  / /_/ / /__/ / / / / / / / /_/ /  \r\n");
+	// printf("   /_/  |_/_/   \\__,_/\\___/_/ /_/_/ /_/_/\\__,_/   \r\n\n");
+	// printf("   * Description      : Application entry\r\n");
+	// printf("   * Release Vertion  : %s\r\n",FIRMWARE_VERSIONS);
+	// printf("   * Release date     : %s\r\n",__DATE__);
+	// printf("   * Note             : COPYRIGHT(c) 2021 Arachnid\r\n");
+	// printf(" ****************************************************\r\n\r\n");
+    // fflush(stdout);
 }
 
 /*----------------------------- End -----------------------------*/

@@ -98,7 +98,7 @@ your application. */
 #define configQUEUE_REGISTRY_SIZE               8
 #define configUSE_QUEUE_SETS                    0
 #define configUSE_TIME_SLICING                  1
-#define configUSE_NEWLIB_REENTRANT              0
+#define configUSE_NEWLIB_REENTRANT              1
 #define configENABLE_BACKWARD_COMPATIBILITY     1
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5
 #define configSTACK_DEPTH_TYPE                  uint16_t
@@ -189,7 +189,12 @@ NVIC value of 255. */
 #define vPortSVCHandler      			SVC_Handler
 #define xPortPendSVHandler   			PendSV_Handler
 #define xPortSysTickHandler 			SysTick_Handler
- 
+
+
+/* FreeRTOS_Helpers file config */
+// #define MALLOCS_INSIDE_ISRs
+#define configISR_STACK_SIZE_WORDS              0x100
+#define configSUPPORT_ISR_STACK_CHECK           1
  
 #endif /* FREERTOS_CONFIG_H */
 
