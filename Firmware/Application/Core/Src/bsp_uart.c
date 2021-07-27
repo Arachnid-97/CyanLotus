@@ -151,10 +151,13 @@ void DEBUG_USART_Init(void)
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(DEBUG_USART, &USART_InitStructure);
 
-    USART_ClearFlag(DEBUG_USART, USART_FLAG_TC);
-    USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);
-    USART_ITConfig(DEBUG_USART, USART_IT_IDLE, ENABLE);
     USART_Cmd(DEBUG_USART, ENABLE);
+
+    // USART_ITConfig(DEBUG_USART, USART_IT_RXNE, ENABLE);
+    // USART_ITConfig(DEBUG_USART, USART_IT_IDLE, ENABLE);
+
+    /* Uncomment the line below if usart send flag use USART_FLAG_TC */
+    // USART_ClearFlag(DEBUG_USART, USART_FLAG_TC); // Fixed first byte sending failure
 }
 
 /************************************************
@@ -167,7 +170,7 @@ void USART_SendByte(USART_TypeDef *USARTx, uint8_t c)
 {
     USART_SendData(USARTx, c);
 
-    while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET)
+    while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET)
         ;
 }
 
@@ -216,7 +219,7 @@ PUTCHAR_PROTOTYPE
     /* 发送一个字节数据到 DEBUG_USART */
     USART_SendData(DEBUG_USART, (uint8_t)ch);
     /* 等待发送完毕 */
-    while (USART_GetFlagStatus(DEBUG_USART, USART_FLAG_TC) == RESET)
+    while (USART_GetFlagStatus(DEBUG_USART, USART_FLAG_TXE) == RESET)
         ;
 #elif defined DEBUG_PRINT_ON_SWO
     ITM_SendChar(ch);
