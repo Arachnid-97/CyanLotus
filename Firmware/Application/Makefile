@@ -6,6 +6,7 @@
 # Generic Makefile (based on gcc)
 #
 # ChangeLog :
+#    2021-07-28 - On-chip ITM debugging + python script output
 #    2021-07-16 - Submodule detection + on-chip operation
 #    2021-05-08 - Simplify the display + complete information
 #    2017-02-10 - Several enhancements + project update mode
@@ -20,6 +21,9 @@ TARGET = Application
 # Version info
 VERSIONS ?= \"V0.0.1\"
 
+# System clock frequency
+SYSCLK ?= 180000000
+
 # Memory size
 MEM_SIZE_FLASH ?= 2048K
 MEM_SIZE_RAM ?= 192K
@@ -33,6 +37,7 @@ BASE_ADDRESS = 0x08000000
 BASE_ADDRESS := $(shell echo $(BASE_ADDRESS) | tr a-z A-Z)
 OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
 
+TCL_PORT ?= 
 
 ######################################
 # building variables
@@ -167,6 +172,9 @@ OPENOCD_INTERFACE ?= interface/stlink.cfg
 OPENOCD_CMDS      ?=
 OPENOCD_TARGET    ?= target/stm32f4x.cfg
 
+# python
+PYTHON            ?= python
+
 # bc calculator
 BC                ?= bc
 
@@ -182,12 +190,14 @@ AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
 DP = $(GCC_PATH)/$(PREFIX)objdump
+GDB = $(GCC_PATH)/$(PREFIX)gdb
 else
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
 DP = $(PREFIX)objdump
+GDB = $(PREFIX)gdb
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
@@ -396,8 +406,16 @@ install: $(BUILD_DIR)/$(TARGET).bin
 				-c "reset halt"	-c "flash write_image erase $(BUILD_DIR)/$(TARGET).bin $$load_addr bin" \
 				-c "verify_image $(BUILD_DIR)/$(TARGET).bin $$load_addr bin" -c "reset run" -c shutdown
 
+openocd:
+	$(OPENOCD) -d2 -f $(OPENOCD_INTERFACE) $(OPENOCD_CMDS) -f $(OPENOCD_TARGET) -c init -c targets -c "\$$_TARGETNAME configure -rtos auto"
 
-.PHONY: sizes all clean build mapinfo reset install
+itm:
+	@$(PYTHON) tools/SWO-Parser/swo_parser.py $(SYSCLK) $(TCL_PORT)
+
+gdb:
+	$(GDB) -ex "target remote localhost:3333" -ex "monitor reset halt" $(BUILD_DIR)/$(TARGET).elf
+
+.PHONY: sizes all clean build mapinfo reset install openocd itm gdb
 
 
 # *** EOF ***

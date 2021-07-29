@@ -19,8 +19,30 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
+            // "searchDir": [ 
+            //     "${workspaceRoot}",
+            //     "/share/openocd/scripts"
+            // ],
             "runToMain": true,
             "preLaunchTask": "Debug",   // 在调试前预先执行的任务，此处是tasks.json中的
+            // "swoConfig": {
+            //     "enabled": true,
+            //     "cpuFrequency": 168000000,
+            //     "swoFrequency": 2000000,
+            //     "source": "probe",
+            //     "decoders": [
+            //         { "type": "console", "label": "ITM", "port": 0 }
+            //     ]
+            // },
+            "openOCDLaunchCommands": [
+                "init",
+                "targets",
+            ],
+            // Work around for stopping at main on restart
+            "postRestartCommands": [
+                "break main",
+                // "continue"
+            ],
         }
     ]
 }
