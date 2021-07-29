@@ -159,12 +159,16 @@ $(PATHS_BASE)/startup_stm32f429xx.s
 
 
 #######################################
-# openocd
+# Tools
 #######################################
+# openocd
 OPENOCD           ?= openocd
 OPENOCD_INTERFACE ?= interface/stlink.cfg
 OPENOCD_CMDS      ?=
 OPENOCD_TARGET    ?= target/stm32f4x.cfg
+
+# bc calculator
+BC                ?= bc
 
 #######################################
 # binaries
@@ -256,6 +260,11 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
 # Compile the standard
 CFLAGS += -std=gnu11
+
+# Static Stack Usage Analysis
+CFLAGS += -fstack-usage
+
+# CFLAGS += -Wstack-usage
 
 #######################################
 # LDFLAGS
@@ -352,8 +361,8 @@ sizes: $(BUILD_DIR)/$(TARGET).elf
 		let mem_size=$(subst K,,$(MEM_SIZE_RAM))*1024; \
 		# flash_usage=`echo "scale=2;($$flash*100/$$flash_size)" | bc`; \
 		# mem_usage=`echo "scale=2;($$mem*100/$$mem_size)" | bc`; \
-		flash_usage1=`echo "scale=2; a=$$flash*100/$$flash_size; if (length(a)==scale(a)) print 0;print a" | bc`;\
-		mem_usage1=`echo "scale=2; a=$$mem*100/$$mem_size; if (length(a)==scale(a)) print 0;print a " | bc`;\
+		flash_usage1=`echo "scale=2; a=$$flash*100/$$flash_size; if (length(a)==scale(a)) print 0;print a" | $(BC)`;\
+		mem_usage1=`echo "scale=2; a=$$mem*100/$$mem_size; if (length(a)==scale(a)) print 0;print a " | $(BC)`;\
 		echo ""; \
 		echo "-------------------------------------------------------------"; \
 		echo "Flash: $$flash / $$flash_size bytes, $$flash_usage1% Full (.text + .data)"; \
@@ -375,7 +384,6 @@ mapinfo:
 		exit $$?; \
 	fi;
 
-
 reset:
 	$(OPENOCD) -d0 -f $(OPENOCD_INTERFACE) $(OPENOCD_CMDS) -f $(OPENOCD_TARGET) -c init -c targets \
 	-c 'reset run' -c shutdown
@@ -387,7 +395,6 @@ install: $(BUILD_DIR)/$(TARGET).bin
 	$(OPENOCD) -d2 -f $(OPENOCD_INTERFACE) $(OPENOCD_CMDS) -f $(OPENOCD_TARGET) -c init -c targets \
 				-c "reset halt"	-c "flash write_image erase $(BUILD_DIR)/$(TARGET).bin $$load_addr bin" \
 				-c "verify_image $(BUILD_DIR)/$(TARGET).bin $$load_addr bin" -c "reset run" -c shutdown
-
 
 
 .PHONY: sizes all clean build mapinfo reset install
