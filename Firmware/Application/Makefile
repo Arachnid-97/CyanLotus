@@ -27,6 +27,7 @@ SYSCLK ?= 180000000
 # Memory size
 MEM_SIZE_FLASH ?= 2048K
 MEM_SIZE_RAM ?= 192K
+
 MEM_SIZE_CCM ?= 64K
 
 # Offset Address
@@ -44,6 +45,9 @@ TCL_PORT ?=
 ######################################
 # debug build?
 DEBUG ?= 0
+
+# SRAM debug start
+SRAM_START ?= 0
 
 # optimization
 # option O0/O1/O2/O3/Og/Os
@@ -72,7 +76,7 @@ SUBDIRS ?= $(PATHS_BASE)/App
 # user source
 USER_SRC = $(wildcard $(SUBDIRS)/*.c)
 USER_SRC +=  \
-$(wildcard $(SUBDIRS)/MD5/*.c) \
+$(SUBDIRS)/MD5/md5.c \
 $(SUBDIRS)/SysGuard/sys_guard.c \
 $(SUBDIRS)/Lwip/netconf.c \
 $(SUBDIRS)/Lwip/port/sys_arch.c \
@@ -95,7 +99,7 @@ $(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/api/*.c) \
 $(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/core/*.c) \
 $(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/core/ipv4/*.c) \
 $(MIDDLEWARE_DIR)/lwip-2.0.3/src/netif/ethernet.c \
-$(MIDDLEWARE_DIR)/lwip-2.0.3/src/netif/lowpan6.c \
+$(MIDDLEWARE_DIR)/lwip-2.0.3/src/netif/lowpan6.c
 
 MIDDLEWARE_SRC += $(MIDDLEWARE_DIR)/cJSON/cJSON.c
 
@@ -236,6 +240,10 @@ ifeq ($(DEBUG), 1)
 C_DEFS += -DUSE_FULL_ASSERT
 endif
 
+ifeq ($(SRAM_START), 1)
+C_DEFS += -DVECT_TAB_SRAM
+endif
+
 # AS includes
 AS_INCLUDES = 
 
@@ -274,13 +282,18 @@ CFLAGS += -std=gnu11
 # Static Stack Usage Analysis
 CFLAGS += -fstack-usage
 
-# CFLAGS += -Wstack-usage
+# CFLAGS += -Wstack-usage=128
 
 #######################################
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = $(PATHS_BASE)/STM32F429ZI_FLASH.ld
+ifeq ($(SRAM_START), 1)
+LDSCRIPT = $(PATHS_BASE)/STM32F429ZI_SDRAM.ld
+else
+LDSCRIPT =  \
+$(PATHS_BASE)/STM32F429ZI_FLASH.ld
+endif
 
 # newlib library
 CLIBS = -specs=nano.specs
@@ -363,32 +376,33 @@ clean:
 # Memory usage
 #######################################
 sizes: $(BUILD_DIR)/$(TARGET).elf
-	@if [ -f "$<" ]; then \
-		arr=(`$(SZ) $< | sed -n '2p'`); \
-		let flash=($${arr[0]}+$${arr[1]}); \
-		let mem=($${arr[1]}+$${arr[2]}); \
-		let flash_size=$(subst K,,$(MEM_SIZE_FLASH))*1024; \
-		let mem_size=$(subst K,,$(MEM_SIZE_RAM))*1024; \
-		# flash_usage=`echo "scale=2;($$flash*100/$$flash_size)" | bc`; \
-		# mem_usage=`echo "scale=2;($$mem*100/$$mem_size)" | bc`; \
-		flash_usage1=`echo "scale=2; a=$$flash*100/$$flash_size; if (length(a)==scale(a)) print 0;print a" | $(BC)`;\
-		mem_usage1=`echo "scale=2; a=$$mem*100/$$mem_size; if (length(a)==scale(a)) print 0;print a " | $(BC)`;\
-		echo ""; \
-		echo "-------------------------------------------------------------"; \
-		echo "Flash: $$flash / $$flash_size bytes, $$flash_usage1% Full (.text + .data)"; \
-		echo "SRAM:  $$mem / $$mem_size bytes, $$mem_usage1% Full (.data + .bss)"; \
+	@arr=(`$(SZ) $< | sed -n '2p'`); \
+	let flash=($${arr[0]}+$${arr[1]}); \
+	let mem=($${arr[1]}+$${arr[2]}); \
+	let flash_size=$(subst K,,$(MEM_SIZE_FLASH))*1024; \
+	let mem_size=$(subst K,,$(MEM_SIZE_RAM))*1024; \
+	# flash_usage=`echo "scale=2;($$flash*100/$$flash_size)" | bc`; \
+	# mem_usage=`echo "scale=2;($$mem*100/$$mem_size)" | bc`; \
+	flash_usage=`echo "scale=2; a=$$flash*100/$$flash_size; if (length(a)==scale(a)) print 0;print a" | $(BC)`;\
+	mem_usage=`echo "scale=2; a=$$mem*100/$$mem_size; if (length(a)==scale(a)) print 0;print a " | $(BC)`;\
+	echo ""; \
+	echo "-------------------------------------------------------------"; \
+	if [ $$flash -ge $$flash_size ]; then \
+		echo -e "Flash: \033[1;31m$$flash \033[0m/ $$flash_size bytes, $$flash_usage% Full (.text + .data)"; \
 	else \
-		echo "note: No such file of $(BUILD_DIR)/$(TARGET).elf"; \
-		echo ""; \
-		echo ">> Please 'make -j8' build the project file <<"; \
-		exit $$?; \
+		echo "Flash: $$flash / $$flash_size bytes, $$flash_usage% Full (.text + .data)"; \
+	fi; \
+	if [ $$mem -ge $$mem_size ]; then \
+		echo -e "SRAM:  \033[1;31m$$mem \033[0m/ $$mem_size bytes, $$mem_usage% Full (.data + .bss)"; \
+	else \
+		echo "SRAM:  $$mem / $$mem_size bytes, $$mem_usage% Full (.data + .bss)"; \
 	fi;
 
 mapinfo: 
 	@if [ -f "$(BUILD_DIR)/$(TARGET).elf" ]; then \
 		readelf -all $(BUILD_DIR)/$(TARGET).elf; \
 	else \
-		echo "note: No such file of $(BUILD_DIR)/$(TARGET).elf"; \
+		echo -e "\033[1;33mwarning:\033[0m No such file of $(BUILD_DIR)/$(TARGET).elf"; \
 		echo ""; \
 		echo ">> Please 'make -j8' build the project file <<"; \
 		exit $$?; \
@@ -410,7 +424,7 @@ openocd:
 	$(OPENOCD) -d2 -f $(OPENOCD_INTERFACE) $(OPENOCD_CMDS) -f $(OPENOCD_TARGET) -c init -c targets -c "\$$_TARGETNAME configure -rtos auto"
 
 itm:
-	@$(PYTHON) tools/SWO-Parser/swo_parser.py $(SYSCLK) $(TCL_PORT)
+	$(PYTHON) tools/SWO-Parser/swo_parser.py $(SYSCLK) $(TCL_PORT)
 
 gdb:
 	$(GDB) -ex "target remote localhost:3333" -ex "monitor reset halt" $(BUILD_DIR)/$(TARGET).elf

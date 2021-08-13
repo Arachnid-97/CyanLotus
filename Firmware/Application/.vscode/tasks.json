@@ -38,7 +38,8 @@
       "command": "make",
       "args": [
         "-j8",
-        "DEBUG=1"
+        "DEBUG=1",
+        // "SRAM_START=1" // SRAM debug
       ],
       "problemMatcher": [
         "$gcc"

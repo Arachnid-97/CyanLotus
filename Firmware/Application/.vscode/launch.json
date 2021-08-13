@@ -37,11 +37,12 @@
             "openOCDLaunchCommands": [
                 "init",
                 "targets",
+                "reset halt"
             ],
             // Work around for stopping at main on restart
             "postRestartCommands": [
                 "break main",
-                // "continue"
+                "continue"
             ],
         }
     ]

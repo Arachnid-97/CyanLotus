@@ -25,9 +25,9 @@
 #define __LWIPOPTS_H__
 
 
-#define USER_RTOS                1
-#if USER_RTOS
+#define USING_RTOS                1
 
+#if USING_RTOS
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
  * critical regions during buffer allocation, deallocation and memory
@@ -92,7 +92,7 @@
  */
 #define LWIP_SOCKET              0
 
-#endif /* USER_RTOS */
+#endif /* USING_RTOS */
 
 
 /* ---------- Memory options ---------- */
@@ -150,7 +150,6 @@ a lot of data that needs to be copied, this should be set high. */
 
 /*  TCP_SND_QUEUELEN: TCP sender buffer space (pbufs). This must be at least
   as much as (2 * TCP_SND_BUF/TCP_MSS) for things to work. */
-
 #define TCP_SND_QUEUELEN         (8* TCP_SND_BUF/TCP_MSS)
 
 /* TCP receive window. */
@@ -158,6 +157,10 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* Enable backlog*/
 #define TCP_LISTEN_BACKLOG       0
+
+/* The TCP timer interval in milliseconds. */
+#define TCP_TMR_INTERVAL         100
+
 
 /* ---------- Network Interfaces options ---------- */
 /* Support netif api (in netifapi.c). */
@@ -192,6 +195,7 @@ a lot of data that needs to be copied, this should be set high. */
 /* ---------- DNS options ---------- */
 #define LWIP_DNS                 0
 
+
 /*
    --------------------------------------
    ---------- Checksum options ----------
@@ -204,7 +208,6 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  - To disable it and process by CPU comment the  the checksum.
 */
 #define CHECKSUM_BY_HARDWARE 
-
 
 #ifdef CHECKSUM_BY_HARDWARE
   /* CHECKSUM_GEN_ICMP==0: Generate checksums in software for outgoing ICMP packets.*/

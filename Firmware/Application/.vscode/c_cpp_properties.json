@@ -32,6 +32,7 @@
                 "FREERTOS",
                 "FIRMWARE_VERSIONS=\"V0.0.1\"",
                 "XBDDD=0x00000000"
+                // "VECT_TAB_SRAM"
             ],
             "compilerPath": "arm-none-eabi-gcc",
             "cStandard": "gnu11",

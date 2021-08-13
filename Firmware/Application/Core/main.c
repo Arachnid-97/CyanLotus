@@ -159,7 +159,9 @@ static void prvSetupHardware( void )
     HSI_SetSysClock(16, 360, 2, 9);
 
     /* Set the Vector Table base location at 0x08000000 + XBDDD */
+#ifndef VECT_TAB_SRAM
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, XBDDD);
+#endif /* VECT_TAB_SRAM */
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     /* Other peripheral configuration */
