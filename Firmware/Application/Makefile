@@ -22,7 +22,7 @@ TARGET = Application
 VERSIONS ?= \"V0.0.1\"
 
 # System clock frequency
-SYSCLK ?= 180000000
+SYSCLK ?= 168MHz
 
 # Memory size
 MEM_SIZE_FLASH ?= 2048K
@@ -35,10 +35,15 @@ OFFSET_ADDRESS ?= 0x00000000
 
 BASE_ADDRESS = 0x08000000
 
+# GDB debug TCL server port
+TCL_PORT ?= 
+
+# Parametric switch
+SYSCLK := $(subst MHz,000000,$(SYSCLK))
+
 BASE_ADDRESS := $(shell echo $(BASE_ADDRESS) | tr a-z A-Z)
 OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
 
-TCL_PORT ?= 
 
 ######################################
 # building variables
@@ -82,6 +87,9 @@ $(SUBDIRS)/Lwip/netconf.c \
 $(SUBDIRS)/Lwip/port/sys_arch.c \
 $(SUBDIRS)/Lwip/port/ethernetif/ethernetif.c \
 $(SUBDIRS)/ETH/eth_socket.c \
+$(SUBDIRS)/SerialPort/rs485.c \
+$(SUBDIRS)/Modbus/mb_callback.c \
+$(wildcard $(SUBDIRS)/Modbus/port/*.c) \
 
 # middleware source
 MIDDLEWARE_SRC +=  \
@@ -103,6 +111,12 @@ $(MIDDLEWARE_DIR)/lwip-2.0.3/src/netif/lowpan6.c
 
 MIDDLEWARE_SRC += $(MIDDLEWARE_DIR)/cJSON/cJSON.c
 
+MIDDLEWARE_SRC +=  \
+$(MIDDLEWARE_DIR)/freemodbus/modbus/mb.c \
+$(wildcard $(MIDDLEWARE_DIR)/freemodbus/modbus/functions/*.c) \
+$(MIDDLEWARE_DIR)/freemodbus/modbus/rtu/mbcrc.c \
+$(MIDDLEWARE_DIR)/freemodbus/modbus/rtu/mbrtu.c
+
 # MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/ff14/source/*.c)
 
 
@@ -120,6 +134,8 @@ USER_INC =  \
 -I$(SUBDIRS)/Lwip/port/arch \
 -I$(SUBDIRS)/Lwip/port/ethernetif \
 -I$(SUBDIRS)/ETH \
+-I$(SUBDIRS)/SerialPort/ \
+-I$(SUBDIRS)/Modbus/port \
 
 # middleware includes
 MIDDLEWARE_INC +=  \
@@ -132,6 +148,10 @@ MIDDLEWARE_INC +=  \
 -I$(MIDDLEWARE_DIR)/lwip-2.0.3/src/include/netif
 
 MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/cJSON
+
+MIDDLEWARE_INC +=  \
+-I$(MIDDLEWARE_DIR)/freemodbus/modbus/include \
+-I$(MIDDLEWARE_DIR)/freemodbus/modbus/rtu
 
 MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/ff14/source
 
@@ -157,7 +177,8 @@ $(PATHS_BASE)/Core/Src/bsp.c \
 $(PATHS_BASE)/Core/Src/stm32f4x7_eth_bsp.c \
 $(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_syscfg.c \
-
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_tim.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_dma.c \
 
 C_SOURCES += $(USER_SRC)
 C_SOURCES += $(MIDDLEWARE_SRC)
@@ -203,6 +224,7 @@ SZ = $(PREFIX)size
 DP = $(PREFIX)objdump
 GDB = $(PREFIX)gdb
 endif
+ASM = $(DP) -D
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 
@@ -307,7 +329,7 @@ LIBDIR =
 LDFLAGS = $(MCU) $(CLIBS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin sizes
+all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).asm $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin sizes
 
 
 #######################################
@@ -331,8 +353,10 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	@echo linking...
-	$(DP) -D $@ > $(BUILD_DIR)/$(TARGET).asm
 	$(SZ) $@
+
+$(BUILD_DIR)/%.asm: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
+	$(ASM) $< > $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(HEX) $< $@

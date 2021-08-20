@@ -98,7 +98,7 @@ void USART_SendString(USART_TypeDef *USARTx, const uint8_t *pData, uint16_t Leng
 void USART_Printf(USART_TypeDef *USARTx, char *String);
 
 
-#endif /* __BSP_PWM_H */
+#endif /* __BSP_UART_H */
 
 
 /*---------------------------- END OF FILE ----------------------------*/

@@ -256,13 +256,16 @@ GETCHAR_PROTOTYPE
 /************************************************************************/
 /*            STM32F10x USART Interrupt Handlers                        */
 /************************************************************************/
-
 /**
   * @brief  This function handles USART1 global interrupt request.
   * @param  None
   * @retval None
   */
+#ifdef DEBUG_PRINT_ON_SWO
+__attribute__((weak)) void DEBUG_USART_IRQHandler(void)
+#else
 void DEBUG_USART_IRQHandler(void)
+#endif /* DEBUG_PRINT_ON_SWO */
 {
     if (USART_GetITStatus(DEBUG_USART, USART_IT_RXNE) != RESET)
     {

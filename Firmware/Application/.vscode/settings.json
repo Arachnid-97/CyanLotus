@@ -19,7 +19,12 @@
         "def.h": "c",
         "arch.h": "c",
         "opt.h": "c",
-        "lwipopts.h": "c"
+        "lwipopts.h": "c",
+        "rs485.h": "c",
+        "mbport.h": "c",
+        "port.h": "c",
+        "rs232.h": "c",
+        "rs232_485_config.h": "c"
     },
     "search.exclude": {
         "**/.vscode": true,

@@ -23,7 +23,11 @@
                 "${workspaceFolder}/App/Lwip/port/arch",
                 "${workspaceFolder}/App/Lwip/port/ethernetif",
                 "${workspaceFolder}/App/SysGuard",
-                "${workspaceFolder}/App/ETH"
+                "${workspaceFolder}/App/ETH",
+                "${workspaceFolder}/App/SerialPort",
+                "${workspaceFolder}/App/Modbus/port",
+                "${workspaceFolder}/middleware/freemodbus/modbus/include",
+                "${workspaceFolder}/middleware/freemodbus/modbus/rtu"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",

@@ -38,7 +38,7 @@
 
 /* Middware includes. */
 #include "cJSON.h"
-
+#include "mb.h"
 
 /* Task priorities. */
 #define mainCREATOR_TASK_PRIORITY           ( configMAX_PRIORITIES - 1 )
@@ -144,6 +144,15 @@ static void prvUser_Task( void *pvParameters )
 	xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
     xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
+	eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
+	eMBEnable();
+
+    while (1)
+    {
+        (void)eMBPoll();
+        vTaskDelay(10 / portTICK_RATE_MS);
+    }
+    
 //	printf("prvUser_Task delete.\r\n\n");
     vTaskDelete(UserTaskCreate_Handle);		// 删除自己
 }
@@ -156,7 +165,7 @@ static void prvUser_Task( void *pvParameters )
 *************************************************/
 static void prvSetupHardware( void )
 {
-    HSI_SetSysClock(16, 360, 2, 9);
+    HSI_SetSysClock(16, 336, 2, 7);
 
     /* Set the Vector Table base location at 0x08000000 + XBDDD */
 #ifndef VECT_TAB_SRAM

@@ -6,7 +6,7 @@
 	url = git@github.com:FreeRTOS/FreeRTOS.git
 [submodule "Firmware/Application/middleware/freemodbus"]
 	path = Firmware/Application/middleware/freemodbus
-	url = git@github.com:cwalter-at/freemodbus.git
+	url = git@github.com:Arachnid-97/freemodbus.git
 [submodule "Firmware/Application/middleware/FreeRTOS_Helpers"]
 	path = Firmware/Application/middleware/FreeRTOS_Helpers
 	url = git@github.com:DRNadler/FreeRTOS_helpers.git
