@@ -35,7 +35,8 @@
                 "USE_FULL_ASSERT",
                 "FREERTOS",
                 "FIRMWARE_VERSIONS=\"V0.0.1\"",
-                "XBDDD=0x00000000"
+                "XBDDD=0x00000000",
+                "SYS_CLK=168000000"
                 // "VECT_TAB_SRAM"
             ],
             "compilerPath": "arm-none-eabi-gcc",

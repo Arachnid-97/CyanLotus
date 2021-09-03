@@ -32,14 +32,14 @@
       }
     },
     {
-      "dependsOn": "Clean",
+      // "dependsOn": "Clean",
       "label": "Debug",
       "type": "shell",
       "command": "make",
       "args": [
         "-j8",
         "DEBUG=1",
-        // "SRAM_START=1" // SRAM debug
+        "SRAM_START=1" // SRAM debug
       ],
       "problemMatcher": [
         "$gcc"

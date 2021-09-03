@@ -90,6 +90,7 @@ $(SUBDIRS)/ETH/eth_socket.c \
 $(SUBDIRS)/SerialPort/rs485.c \
 $(SUBDIRS)/Modbus/mb_callback.c \
 $(wildcard $(SUBDIRS)/Modbus/port/*.c) \
+$(SUBDIRS)/App/SerialPort/virtual_serial.c \
 
 # middleware source
 MIDDLEWARE_SRC +=  \
@@ -179,6 +180,7 @@ $(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_syscfg.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_tim.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_dma.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_exti.c \
 
 C_SOURCES += $(USER_SRC)
 C_SOURCES += $(MIDDLEWARE_SRC)
@@ -257,6 +259,7 @@ C_DEFS =  \
 
 C_DEFS += -DFIRMWARE_VERSIONS=$(VERSIONS)
 C_DEFS += -DXBDDD=$(OFFSET_ADDRESS)
+C_DEFS += -DSYS_CLK=$(SYSCLK)
 
 ifeq ($(DEBUG), 1)
 C_DEFS += -DUSE_FULL_ASSERT

@@ -28,6 +28,7 @@
 #include "bsp_uart.h"
 #include "sys_guard.h"
 #include "eth_socket.h"
+#include "virtual_serial.h"
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -141,15 +142,22 @@ static void prvUser_Task( void *pvParameters )
 	cJSON_InitHooks(&cJSON_mem);
 
     /* User-defined private tasks */
-	xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
-    xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
+	// xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
+    // xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-	eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
-	eMBEnable();
+    Virtual_Serial_Init();
+	// eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
+	// eMBEnable();
+
+    uint8_t temp[] = "hello world!";
+
+    // VSPD_SendByte(COM1, 0xa5);
+    VSPD_SendString(COM1, temp, sizeof(temp));
 
     while (1)
     {
-        (void)eMBPoll();
+        // (void)eMBPoll();
+
         vTaskDelay(10 / portTICK_RATE_MS);
     }
     
@@ -165,7 +173,12 @@ static void prvUser_Task( void *pvParameters )
 *************************************************/
 static void prvSetupHardware( void )
 {
+    RCC_ClocksTypeDef RCC_clock;
+
     HSI_SetSysClock(16, 336, 2, 7);
+
+    RCC_GetClocksFreq(&RCC_clock);    
+    SystemCoreClock = RCC_clock.SYSCLK_Frequency;
 
     /* Set the Vector Table base location at 0x08000000 + XBDDD */
 #ifndef VECT_TAB_SRAM
@@ -174,7 +187,7 @@ static void prvSetupHardware( void )
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     /* Other peripheral configuration */
-    vSetupUSART();
+    // vSetupUSART();
     // vSetupTimer();
     // vSetupParPort();
                                                
