@@ -187,7 +187,7 @@ static void prvSetupHardware( void )
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
     /* Other peripheral configuration */
-    // vSetupUSART();
+    vSetupUSART();
     // vSetupTimer();
     // vSetupParPort();
                                                

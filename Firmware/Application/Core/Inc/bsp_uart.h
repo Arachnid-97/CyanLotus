@@ -10,10 +10,10 @@
 
 #define DEBUG_USART                 USART1
 #define DEBUG_USART_CLK             RCC_APB2Periph_USART1
-#define DEBUG_USART_APBxClkCmd      RCC_APB2PeriphClockCmd
+#define DEBUG_USART_CLOCK_FUN(x, y)	RCC_APB2PeriphClockCmd(x, y)
 
 #define DEBUG_USART_GPIO_CLK        RCC_AHB1Periph_GPIOB
-#define DEBUG_USART_GPIO_APBxClkCmd RCC_AHB1PeriphClockCmd
+#define DEBUG_USART_GPIO_CLOCK_FUN(x, y) RCC_AHB1PeriphClockCmd(x, y)
 
 #define DEBUG_USART_GPIO_AF_MAP     GPIO_AF_USART1
 #define DEBUG_USART_TX_AF_PIN       GPIO_PinSource6
@@ -45,31 +45,31 @@ extern uint8_t g_DebugPrintf_flag;
 												xSemaphoreGive(MuxSem_UartPrintf);}\
 											}while(0)
 
-#ifndef USER_DEBUG
-#define USER_DEBUG				0
+#ifndef USING_DEBUG
+#define USING_DEBUG				0
 #endif
 #define DEBUG_PRINTF(fmt,arg...)			do{\
-											if(USER_DEBUG || g_DebugPrintf_flag){\
+											if(USING_DEBUG || g_DebugPrintf_flag){\
 												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
 												printf("<<-DEBUG->> %s > "fmt"",__FUNCTION__, ##arg);\
 												xSemaphoreGive(MuxSem_UartPrintf);}\
 											}while(0)
 
-#ifndef USER_INFO
-#define USER_INFO				1
+#ifndef USING_INFO
+#define USING_INFO				1
 #endif
 #define INFO_PRINTF(fmt,arg...)			do{\
-											if(USER_INFO || g_DebugPrintf_flag){\
+											if(USING_INFO || g_DebugPrintf_flag){\
 												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
 												printf("<<-INFO->> "fmt"",##arg);\
 												xSemaphoreGive(MuxSem_UartPrintf);}\
 											}while(0)
 
-#ifndef USER_LOG
-#define USER_LOG                1
+#ifndef USING_LOG
+#define USING_LOG                1
 #endif
 #define LOG_PRINTF(type,fmt,arg...)			do{\
-											if(USER_LOG || g_DebugPrintf_flag){\
+											if(USING_LOG || g_DebugPrintf_flag){\
 												xSemaphoreTake(MuxSem_UartPrintf, portMAX_DELAY);\
 												printf("<<-%s->> %s > "fmt"",#type,__FUNCTION__, ##arg);\
 												xSemaphoreGive(MuxSem_UartPrintf);}\
@@ -77,16 +77,16 @@ extern uint8_t g_DebugPrintf_flag;
 
 typedef struct
 {
-	uint8_t Buffer[RxBUFFER_SIZE];  // ½ÓÊÕÔİ´æ»º³åÇø
-	volatile uint16_t Counter;      // ½ÓÊÕÊı¾İ¸öÊı
-	volatile uint8_t Frame_flag;    // Ò»Ö¡Íê³É±êÖ¾
+	uint8_t Buffer[RxBUFFER_SIZE];  // æ¥æ”¶æš‚å­˜ç¼“å†²åŒº
+	volatile uint16_t Counter;      // æ¥æ”¶æ•°æ®ä¸ªæ•°
+	volatile uint8_t Frame_flag;    // ä¸€å¸§å®Œæˆæ ‡å¿—
 }UartRx_Buff_TypeDef;
  
 typedef struct
 {
-	uint8_t Buffer[TxBUFFER_SIZE];  // ·¢ËÍÔİ´æ»º³åÇø
-	volatile uint16_t Counter;      // ·¢ËÍÊı¾İ¸öÊı
-	USART_TypeDef* COMx;            // ´®¿ÚºÅ
+	uint8_t Buffer[TxBUFFER_SIZE];  // å‘é€æš‚å­˜ç¼“å†²åŒº
+	volatile uint16_t Counter;      // å‘é€æ•°æ®ä¸ªæ•°
+	USART_TypeDef* COMx;            // ä¸²å£å·
 }UartTx_Buff_TypeDef;
 
 extern UartRx_Buff_TypeDef DEBUG_Uart_Rx;

@@ -24,6 +24,9 @@ VERSIONS ?= \"V0.0.1\"
 # System clock frequency
 SYSCLK ?= 168MHz
 
+# High speed external clock frequency
+HSE_CLOCK ?= 8MHz
+
 # Memory size
 MEM_SIZE_FLASH ?= 2048K
 MEM_SIZE_RAM ?= 192K
@@ -40,6 +43,7 @@ TCL_PORT ?=
 
 # Parametric switch
 SYSCLK := $(subst MHz,000000,$(SYSCLK))
+HSE_CLOCK := $(subst MHz,000000,$(HSE_CLOCK))
 
 BASE_ADDRESS := $(shell echo $(BASE_ADDRESS) | tr a-z A-Z)
 OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
@@ -90,7 +94,7 @@ $(SUBDIRS)/ETH/eth_socket.c \
 $(SUBDIRS)/SerialPort/rs485.c \
 $(SUBDIRS)/Modbus/mb_callback.c \
 $(wildcard $(SUBDIRS)/Modbus/port/*.c) \
-$(SUBDIRS)/App/SerialPort/virtual_serial.c \
+$(SUBDIRS)/SerialPort/virtual_serial.c \
 
 # middleware source
 MIDDLEWARE_SRC +=  \
@@ -260,9 +264,11 @@ C_DEFS =  \
 C_DEFS += -DFIRMWARE_VERSIONS=$(VERSIONS)
 C_DEFS += -DXBDDD=$(OFFSET_ADDRESS)
 C_DEFS += -DSYS_CLK=$(SYSCLK)
+C_DEFS += -DHSE_VALUE=$(HSE_CLOCK)
 
 ifeq ($(DEBUG), 1)
 C_DEFS += -DUSE_FULL_ASSERT
+C_DEFS += -DUSING_DEBUG
 endif
 
 ifeq ($(SRAM_START), 1)

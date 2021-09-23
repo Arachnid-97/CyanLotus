@@ -2,12 +2,12 @@
 
 
 /************************************************
-º¯ÊıÃû³Æ £º Flash_ReadHalfWord
-¹¦    ÄÜ £º ´Ó FlashÁ¬Ğø¶Á n¸ö×Ö£¨16 bit£©
-²Î    Êı £º address ---- µØÖ·Î»
-			Buff ---- ¶ÁÈ¡µÄÊı¾İ
-			Len ---- ³¤¶È
-·µ »Ø Öµ £º ÎŞ
+å‡½æ•°åç§° ï¼š Flash_ReadHalfWord
+åŠŸ    èƒ½ ï¼š ä» Flashè¿ç»­è¯» nä¸ªå­—ï¼ˆ16 bitï¼‰
+å‚    æ•° ï¼š address ---- åœ°å€ä½
+			Buff ---- è¯»å–çš„æ•°æ®
+			Len ---- é•¿åº¦
+è¿” å› å€¼ ï¼š æ— 
 *************************************************/
 void Flash_Read_nWord( uint32_t Addr, uint8_t *Buff, uint16_t Len )
 {
@@ -24,12 +24,12 @@ void Flash_Read_nWord( uint32_t Addr, uint8_t *Buff, uint16_t Len )
 }
 
 /************************************************
-º¯ÊıÃû³Æ £º Flash_WriteWord
-¹¦    ÄÜ £º Ïò FlashĞ´ n¸ö×Ö£¨32 bit£©
-²Î    Êı £º address ---- µØÖ·Î»
-			Buff ---- ´æ´¢µÄÊı¾İ
-			Len ---- ³¤¶È
-·µ »Ø Öµ £º 0 / 1
+å‡½æ•°åç§° ï¼š Flash_WriteWord
+åŠŸ    èƒ½ ï¼š å‘ Flashå†™ nä¸ªå­—ï¼ˆ32 bitï¼‰
+å‚    æ•° ï¼š address ---- åœ°å€ä½
+			Buff ---- å­˜å‚¨çš„æ•°æ®
+			Len ---- é•¿åº¦
+è¿” å› å€¼ ï¼š 0 / 1
 *************************************************/
 uint32_t Flash_Write_nWord( uint32_t Addr, uint8_t *Buff, uint16_t Len )
 {
@@ -40,7 +40,7 @@ uint32_t Flash_Write_nWord( uint32_t Addr, uint8_t *Buff, uint16_t Len )
 
     FLASH_Unlock();
 
-    /* Çå¿ÕËùÓĞ±êÖ¾Î» */
+    /* æ¸…ç©ºæ‰€æœ‰æ ‡å¿—ä½ */
     FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
                     FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
 
@@ -60,12 +60,12 @@ uint32_t Flash_Write_nWord( uint32_t Addr, uint8_t *Buff, uint16_t Len )
 }
 
 /************************************************
-º¯ÊıÃû³Æ £º ReadFlash_HalfWord
-¹¦    ÄÜ £º ´Ó Flash¶Á°ë¸ö×Ö£¨16 bit£©
-²Î    Êı £º address ---- µØÖ·Î»
-			Buff ---- ¶ÁÈ¡µÄÊı¾İ
-			Len ---- ³¤¶È
-·µ »Ø Öµ £º ÎŞ
+å‡½æ•°åç§° ï¼š ReadFlash_HalfWord
+åŠŸ    èƒ½ ï¼š ä» Flashè¯»åŠä¸ªå­—ï¼ˆ16 bitï¼‰
+å‚    æ•° ï¼š address ---- åœ°å€ä½
+			Buff ---- è¯»å–çš„æ•°æ®
+			Len ---- é•¿åº¦
+è¿” å› å€¼ ï¼š æ— 
 *************************************************/
 uint16_t ReadFlash_HalfWord( uint32_t Addr )
 {
@@ -73,7 +73,91 @@ uint16_t ReadFlash_HalfWord( uint32_t Addr )
 
     Address = WRITE_START_ADDR + Addr;
 
-    return (*(vu16*) Address);				//¶ÁÖ¸¶¨µØÖ·µÄ°ë¸ö×ÖµÄÊı¾İ
+    return (*(vu16*) Address);				//è¯»æŒ‡å®šåœ°å€çš„åŠä¸ªå­—çš„æ•°æ®
+}
+
+/**************************************************************** 
+ * Function:    Flash_EnableReadProtection 
+ * Description: Enable the read protection of user flash area. 
+ * Input: 
+ * Output: 
+ * Return:      1: Read Protection successfully enable 
+ *              2: Error: Flash read unprotection failed 
+*****************************************************************/
+int Flash_EnableReadProtection(void)
+{
+    /* Returns the FLASH Read Protection level. */
+    if (FLASH_OB_GetRDP() == RESET)
+    {
+        /* Unlock the Option Bytes */
+        FLASH_OB_Unlock();
+
+        /* Sets the read protection level. */
+        FLASH_OB_RDPConfig(OB_RDP_Level_1);
+
+        /* Start the Option Bytes programming process. */
+        if (FLASH_OB_Launch() != FLASH_COMPLETE)
+        {
+            /* Disable the Flash option control register access (recommended to protect
+            the option Bytes against possible unwanted operations) */
+            FLASH_OB_Lock();
+
+            /* Error: Flash read unprotection failed */
+            return (-1);
+        }
+
+        /* Disable the Flash option control register access (recommended to protect
+        the option Bytes against possible unwanted operations) */
+        FLASH_OB_Lock();
+
+        /* Read Protection successfully enable */
+        return (1);
+    }
+
+    /* Read Protection successfully enable */
+    return (0);
+}
+
+/**************************************************************** 
+ * Function:    Flash_DisableReadProtection 
+ * Description: Disable the read protection of user flash area. 
+ * Input: 
+ * Output: 
+ * Return:      1: Read Protection successfully disable 
+ *              2: Error: Flash read unprotection failed 
+*****************************************************************/
+uint32_t Flash_DisableReadProtection(void)
+{
+    /* Returns the FLASH Read Protection level. */
+    if (FLASH_OB_GetRDP() != RESET)
+    {
+        /* Unlock the Option Bytes */
+        FLASH_OB_Unlock();
+
+        /* Sets the read protection level. */
+        FLASH_OB_RDPConfig(OB_RDP_Level_0);
+
+        /* Start the Option Bytes programming process. */
+        if (FLASH_OB_Launch() != FLASH_COMPLETE)
+        {
+            /* Disable the Flash option control register access (recommended to protect
+            the option Bytes against possible unwanted operations) */
+            FLASH_OB_Lock();
+
+            /* Error: Flash read unprotection failed */
+            return (-1);
+        }
+
+        /* Disable the Flash option control register access (recommended to protect
+        the option Bytes against possible unwanted operations) */
+        FLASH_OB_Lock();
+
+        /* Read Protection successfully disable */
+        return (1);
+    }
+
+    /* Read Protection successfully disable */
+    return (0);
 }
 
 

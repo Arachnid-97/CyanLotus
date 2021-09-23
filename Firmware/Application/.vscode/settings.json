@@ -1,8 +1,5 @@
 {
     "files.autoGuessEncoding": true,
-
-	/* 终端在Windows上使用的shell的路径 */
-    "terminal.integrated.defaultProfile.windows": "Git Bash", // 如果添加了环境变量可以去掉路径
     "files.associations": {
         "stm32f4xx.h": "c",
         "cstdint": "cpp",
@@ -44,4 +41,5 @@
     },
     "search.showLineNumbers": true,
     "terminal.explorerKind": "external",
+    "terminal.integrated.automationShell.windows": "Git Bash",
 }

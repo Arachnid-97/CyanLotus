@@ -63,7 +63,9 @@ void vSetupUSART(void)
 {
     BaseType_t xReturn = pdFAIL;
 
+#ifdef DEBUG_PRINT_ON_UART
     DEBUG_USART_Init();
+#endif /* DEBUG_PRINT_ON_UART */
 
     MuxSem_UartPrintf = xSemaphoreCreateMutex();
 	if(MuxSem_UartPrintf == NULL)
@@ -88,7 +90,7 @@ static void DEBUG_USART_GPIO_Config(void)
     GPIO_InitTypeDef GPIO_InitStructure;
 
     /* config DEBUG USART GPIO clock */
-    DEBUG_USART_GPIO_APBxClkCmd(DEBUG_USART_GPIO_CLK, ENABLE);
+    DEBUG_USART_GPIO_CLOCK_FUN(DEBUG_USART_GPIO_CLK, ENABLE);
 
     /* Connect PXx to USARTx_Tx*/
     GPIO_PinAFConfig(DEBUG_USART_TX_GPIO_PORT, DEBUG_USART_TX_AF_PIN, DEBUG_USART_GPIO_AF_MAP);
@@ -124,7 +126,7 @@ void DEBUG_USART_Init(void)
     DEBUG_USART_GPIO_Config();
 
     /* config DEBUG USART clock */
-    DEBUG_USART_APBxClkCmd(DEBUG_USART_CLK, ENABLE);
+    DEBUG_USART_CLOCK_FUN(DEBUG_USART_CLK, ENABLE);
 
     USART_DeInit(DEBUG_USART);
 

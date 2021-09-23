@@ -8,10 +8,10 @@
 
 #define RS485_USART                 USART6
 #define RS485_USART_CLK             RCC_APB2Periph_USART6
-#define RS485_USART_APBxClkCmd      RCC_APB2PeriphClockCmd
+#define RS485_USART_CLOCK_FUN(x, y) RCC_APB2PeriphClockCmd(x, y)
 
 #define RS485_USART_GPIO_CLK        RCC_AHB1Periph_GPIOC
-#define RS485_USART_GPIO_APBxClkCmd RCC_AHB1PeriphClockCmd
+#define RS485_USART_GPIO_CLOCK_FUN(x, y) RCC_AHB1PeriphClockCmd(x, y)
 
 #define RS485_USART_GPIO_AF_MAP     GPIO_AF_USART6
 #define RS485_USART_TX_AF_PIN       GPIO_PinSource6

@@ -82,7 +82,7 @@ void RS232_USART_Init(uint32_t BaudRate, RSParity Parity)
     RS232_USART_GPIO_Config();
 
     /* config RS232 USART clock */
-    RS232_USART_APBxClkCmd(RS232_USART_CLK, ENABLE);
+    RS232_USART_CLOCK_FUN(RS232_USART_CLK, ENABLE);
 
     USART_DeInit(RS232_USART);
 
@@ -227,7 +227,7 @@ static void RS232_USART_GPIO_Config(void)
     GPIO_InitTypeDef GPIO_InitStructure;
 
     /* config RS232 USART GPIO clock */
-    RS232_USART_GPIO_APBxClkCmd(RS232_USART_GPIO_CLK, ENABLE);
+    RS232_USART_GPIO_CLOCK_FUN(RS232_USART_GPIO_CLK, ENABLE);
 
     /* Connect PXx to USARTx_Tx*/
     GPIO_PinAFConfig(RS232_USART_TX_GPIO_PORT, RS232_USART_TX_AF_PIN, RS232_USART_GPIO_AF_MAP);
