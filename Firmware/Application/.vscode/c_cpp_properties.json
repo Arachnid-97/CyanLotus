@@ -28,7 +28,8 @@
                 "${workspaceFolder}/App/Modbus/port",
                 "${workspaceFolder}/middleware/freemodbus/modbus/include",
                 "${workspaceFolder}/middleware/freemodbus/modbus/rtu",
-                "${workspaceFolder}/App/W25Qxx"
+                "${workspaceFolder}/App/W25Qxx",
+                "${workspaceFolder}/App/AT24Cxx"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",
