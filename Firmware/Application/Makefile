@@ -95,6 +95,9 @@ $(SUBDIRS)/SerialPort/rs485.c \
 $(SUBDIRS)/Modbus/mb_callback.c \
 $(wildcard $(SUBDIRS)/Modbus/port/*.c) \
 $(SUBDIRS)/SerialPort/virtual_serial.c \
+$(SUBDIRS)/SDCard/sdcard_base.c \
+$(SUBDIRS)/SDCard/stm324x9i_eval_sdio_sd.c \
+$(SUBDIRS)/SDCard/user_sdcard.c
 
 # middleware source
 MIDDLEWARE_SRC +=  \
@@ -141,6 +144,7 @@ USER_INC =  \
 -I$(SUBDIRS)/ETH \
 -I$(SUBDIRS)/SerialPort/ \
 -I$(SUBDIRS)/Modbus/port \
+-I$(SUBDIRS)/SDCard \
 
 # middleware includes
 MIDDLEWARE_INC +=  \
@@ -185,6 +189,7 @@ $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_syscfg.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_tim.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_dma.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_exti.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_sdio.c \
 
 C_SOURCES += $(USER_SRC)
 C_SOURCES += $(MIDDLEWARE_SRC)

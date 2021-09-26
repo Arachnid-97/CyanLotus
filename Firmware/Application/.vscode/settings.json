@@ -21,7 +21,14 @@
         "mbport.h": "c",
         "port.h": "c",
         "rs232.h": "c",
-        "rs232_485_config.h": "c"
+        "rs232_485_config.h": "c",
+        "bsp_iic.h": "c",
+        "at24cxx.h": "c",
+        "ee_simulate.h": "c",
+        "user_sdcard.h": "c",
+        "sdcard_base.h": "c",
+        "stm324x9i_eval_sdio_sd.h": "c",
+        "string.h": "c"
     },
     "search.exclude": {
         "**/.vscode": true,

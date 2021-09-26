@@ -29,6 +29,7 @@
 #include "sys_guard.h"
 #include "eth_socket.h"
 #include "virtual_serial.h"
+#include "user_sdcard.h"
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -145,14 +146,16 @@ static void prvUser_Task( void *pvParameters )
 	// xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
     // xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-    Virtual_Serial_Init();
+    // Virtual_Serial_Init();
 	// eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
 	// eMBEnable();
 
-    uint8_t temp[] = "hello world!";
+    SD_test();
+
+    // uint8_t temp[] = "hello world!";
 
     // VSPD_SendByte(COM1, 0xa5);
-    VSPD_SendString(COM1, temp, sizeof(temp));
+    // VSPD_SendString(COM1, temp, sizeof(temp));
 
     while (1)
     {
