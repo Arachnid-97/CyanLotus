@@ -30,6 +30,8 @@
 #include "eth_socket.h"
 #include "virtual_serial.h"
 #include "user_sdcard.h"
+#include "user_fatfs.h"
+
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -150,7 +152,8 @@ static void prvUser_Task( void *pvParameters )
 	// eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
 	// eMBEnable();
 
-    SD_test();
+    // SD_test();
+    FF_Test();
 
     // uint8_t temp[] = "hello world!";
 

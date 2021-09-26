@@ -97,7 +97,9 @@ $(wildcard $(SUBDIRS)/Modbus/port/*.c) \
 $(SUBDIRS)/SerialPort/virtual_serial.c \
 $(SUBDIRS)/SDCard/sdcard_base.c \
 $(SUBDIRS)/SDCard/stm324x9i_eval_sdio_sd.c \
-$(SUBDIRS)/SDCard/user_sdcard.c
+$(SUBDIRS)/SDCard/user_sdcard.c \
+$(SUBDIRS)/Fatfs/sd_diskio.c \
+$(SUBDIRS)/Fatfs/user_fatfs.c
 
 # middleware source
 MIDDLEWARE_SRC +=  \
@@ -125,7 +127,7 @@ $(wildcard $(MIDDLEWARE_DIR)/freemodbus/modbus/functions/*.c) \
 $(MIDDLEWARE_DIR)/freemodbus/modbus/rtu/mbcrc.c \
 $(MIDDLEWARE_DIR)/freemodbus/modbus/rtu/mbrtu.c
 
-# MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/ff14/source/*.c)
+MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/ff14/source/*.c)
 
 
 #######################################
@@ -145,6 +147,7 @@ USER_INC =  \
 -I$(SUBDIRS)/SerialPort/ \
 -I$(SUBDIRS)/Modbus/port \
 -I$(SUBDIRS)/SDCard \
+-I$(SUBDIRS)/Fatfs
 
 # middleware includes
 MIDDLEWARE_INC +=  \

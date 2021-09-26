@@ -2,205 +2,205 @@
 #include "bsp_uart.h"
 
 
-#define _DEBUG      0
+#define _DEBUG      1
 
-#define FATFS_DEBUG_PRINTF(fmt,arg...)		do{\
-											if(_DEBUG)\
-												printf(""fmt"",##arg);\
-											}while(0)
+#define FATFS_DEBUG_PRINTF(fmt,arg...)      do{\
+                                            if(_DEBUG)\
+                                                printf(""fmt"",##arg);\
+                                            }while(0)
 
-/* ÉèÖÃ²Ù×÷µÄÇı¶¯ÅÌ */
-#define DRIVER_DISK			"1:"
+/* è®¾ç½®æ“ä½œçš„é©±åŠ¨ç›˜ */
+#define DRIVER_DISK         "1:"
 
-FATFS FatFs;				/* Ã¿¸öÂß¼­Çı¶¯Æ÷µÄÎÄ¼şÏµÍ³¶ÔÏó */
-FIL File;					/* ÎÄ¼ş¶ÔÏó */
-FRESULT res_sd;				/* FatFs º¯Êı¹«¹²½á¹û´úÂë */
-UINT br, bw;				/* ÎÄ¼ş¶Á /Ğ´×Ö½Ú¼ÆÊı */
+FATFS FatFs;                /* æ¯ä¸ªé€»è¾‘é©±åŠ¨å™¨çš„æ–‡ä»¶ç³»ç»Ÿå¯¹è±¡ */
+FIL File;                   /* æ–‡ä»¶å¯¹è±¡ */
+FRESULT res_sd;             /* FatFs å‡½æ•°å…¬å…±ç»“æœä»£ç  */
+UINT br, bw;                /* æ–‡ä»¶è¯» /å†™å­—èŠ‚è®¡æ•° */
 
 __attribute__ ((aligned (4)))  \
-BYTE FF_Buff[FF_MAX_SS] = "FatfsÎÄ¼şÏµÍ³¶ÁĞ´²âÊÔÊµÑé\r\n";	/* Working buffer */
+BYTE FF_Buff[FF_MAX_SS] = "Fatfs file system read and write test!\r\n";    /* Working buffer */
 
 
 /************************************************
-º¯ÊıÃû³Æ £º FF_Test
-¹¦    ÄÜ £º FatfsÎÄ¼şÏµÍ³²âÊÔ
-²Î    Êı £º ÎŞ
-·µ »Ø Öµ £º ÎŞ
+å‡½æ•°åç§° ï¼š FF_Test
+åŠŸ    èƒ½ ï¼š Fatfsæ–‡ä»¶ç³»ç»Ÿæµ‹è¯•
+å‚    æ•° ï¼š æ— 
+è¿” å› å€¼ ï¼š æ— 
 *************************************************/
 void FF_Test(void)
 {
-	uint32_t num = 50;
-	
-	FF_System_Creates(DRIVER_DISK, 1);
-	FF_ViewRootDir(DRIVER_DISK);
-	FF_OpenWrite("1:temp.txt", FF_Buff, num);
-	FF_OpenRead("1:temp.txt", &FF_Buff[1024], num);
-	
-	
-    /* ²»ÔÙÊ¹ÓÃÎÄ¼şÏµÍ³£¬È¡Ïû¹ÒÔØÎÄ¼şÏµÍ³ */
+    uint32_t num = 50;
+    
+    FF_System_Creates(DRIVER_DISK, 1);
+    // FF_ViewRootDir(DRIVER_DISK);
+    FF_OpenWrite("1:temp.txt", FF_Buff, num);
+    FF_OpenRead("1:temp.txt", &FF_Buff[1024], num);
+    
+    
+    /* ä¸å†ä½¿ç”¨æ–‡ä»¶ç³»ç»Ÿï¼Œå–æ¶ˆæŒ‚è½½æ–‡ä»¶ç³»ç»Ÿ */
     f_mount(NULL, DRIVER_DISK, 1);
 }
 
 /************************************************
-º¯ÊıÃû³Æ £º FF_System_Creates
-¹¦    ÄÜ £º FatfsÎÄ¼şÏµÍ³×¢²á
-²Î    Êı £º Drive ---- ÅÌ·û
-			Opt ---- 0£ºÏÖÔÚ²»Òª°²×°£¨ÔÚµÚÒ»´Î·ÃÎÊ¸Ã¾íÊ±°²×°£©
-					 1£ºÇ¿ÖÆ°²×°¸Ã¾íÒÔ¼ì²éËüÊÇ·ñ¿ÉÒÔ¹¤×÷
-·µ »Ø Öµ £º ÎŞ
+å‡½æ•°åç§° ï¼š FF_System_Creates
+åŠŸ    èƒ½ ï¼š Fatfsæ–‡ä»¶ç³»ç»Ÿæ³¨å†Œ
+å‚    æ•° ï¼š Drive ---- ç›˜ç¬¦
+            Opt ---- 0ï¼šç°åœ¨ä¸è¦å®‰è£…ï¼ˆåœ¨ç¬¬ä¸€æ¬¡è®¿é—®è¯¥å·æ—¶å®‰è£…ï¼‰
+                     1ï¼šå¼ºåˆ¶å®‰è£…è¯¥å·ä»¥æ£€æŸ¥å®ƒæ˜¯å¦å¯ä»¥å·¥ä½œ
+è¿” å› å€¼ ï¼š æ— 
 *************************************************/
 void FF_System_Creates( char *pDrive, uint8_t Opt )
 {
-	/* ÎªÂß¼­Çı¶¯Æ÷¹¤×÷Çø×¢²á */
+    /* ä¸ºé€»è¾‘é©±åŠ¨å™¨å·¥ä½œåŒºæ³¨å†Œ */
     res_sd = f_mount(&FatFs, pDrive, Opt);
 
-	if(1 == Opt)
-	{
-		/* Èç¹ûÃ»ÓĞÎÄ¼şÏµÍ³¾Í¸ñÊ½»¯´´½¨ÎÄ¼şÏµÍ³ */
-		if(res_sd == FR_NO_FILESYSTEM)
-		{
-			FATFS_DEBUG_PRINTF("SD¿¨»¹Ã»ÓĞÎÄ¼şÏµÍ³£¬¼´½«½øĞĞ¸ñÊ½»¯...\r\n");
-			
-			res_sd = f_mkfs(pDrive, 0, FF_Buff, sizeof(FF_Buff));	// ¸ñÊ½»¯
+    if(1 == Opt)
+    {
+        /* å¦‚æœæ²¡æœ‰æ–‡ä»¶ç³»ç»Ÿå°±æ ¼å¼åŒ–åˆ›å»ºæ–‡ä»¶ç³»ç»Ÿ */
+        if(res_sd == FR_NO_FILESYSTEM)
+        {
+            FATFS_DEBUG_PRINTF("The SD card does not have a file system yet. Formatting in progress...\r\n");
+            
+            res_sd = f_mkfs(pDrive, 0, FF_Buff, sizeof(FF_Buff));    // æ ¼å¼åŒ–
 
-			if(res_sd == FR_OK)
-			{
-				FATFS_DEBUG_PRINTF("SD¿¨ÒÑ³É¹¦¸ñÊ½»¯ÎÄ¼şÏµÍ³¡£\r\n");
-				
-				res_sd = f_mount(NULL, pDrive, 1);		// ¸ñÊ½»¯ºó£¬ÏÈÈ¡Ïû¹ÒÔØ
-				
-				res_sd = f_mount(&FatFs, pDrive, 1);		// ÖØĞÂ¹ÒÔØ
-			}
-			else
-			{
-				FATFS_DEBUG_PRINTF("¸ñÊ½»¯Ê§°Ü¡£\r\n");
-				while(1);
-			}
-		}
-		else if(res_sd != FR_OK)
-		{
-			FATFS_DEBUG_PRINTF("£¡£¡SD¿¨¹ÒÔØ°²×°ÎÄ¼şÏµÍ³Ê§°Ü¡£(error code:%d)\r\n",res_sd);
-			FATFS_DEBUG_PRINTF("£¡£¡¿ÉÄÜÔ­Òò£ºSD¿¨³õÊ¼»¯²»³É¹¦¡£\r\n");
-			while(1);
-		}
-		else
-		{
-			FATFS_DEBUG_PRINTF("ÎÄ¼şÏµÍ³¹ÒÔØ°²×°³É¹¦£¬¿ÉÒÔ½øĞĞÎÄ¼ş¶ÁĞ´²Ù×÷\r\n");
-		}
-	}
-	else
-	{
-		FATFS_DEBUG_PRINTF("¹ÒÔØ´ÅÅÌÍê³É£¬µ«²¢Î´°²×°¡£\r\n");
-	}
+            if(res_sd == FR_OK)
+            {
+                FATFS_DEBUG_PRINTF("The file system was successfully formatted.\r\n");
+                
+                res_sd = f_mount(NULL, pDrive, 1);      // æ ¼å¼åŒ–åï¼Œå…ˆå–æ¶ˆæŒ‚è½½
+                
+                res_sd = f_mount(&FatFs, pDrive, 1);    // é‡æ–°æŒ‚è½½
+            }
+            else
+            {
+                FATFS_DEBUG_PRINTF("Formatted fail!\r\n");
+                while(1);
+            }
+        }
+        else if(res_sd != FR_OK)
+        {
+            FATFS_DEBUG_PRINTF("!! Mount mount file system failed. (error code:%d)\r\n", res_sd);
+            FATFS_DEBUG_PRINTF("!! Possible cause: SD card initialization failed.\r\n");
+            while(1);
+        }
+        else
+        {
+            FATFS_DEBUG_PRINTF("The file system is mounted and installed successfully. You can read and write files.\r\n");
+        }
+    }
+    else
+    {
+        FATFS_DEBUG_PRINTF("The disk is mounted but not installed\r\n");
+    }
 }
 
 /************************************************
-º¯ÊıÃû³Æ £º FF_OpenWrite
-¹¦    ÄÜ £º ´ò¿ªÎÄ¼ş²¢Ğ´ÈëĞÅÏ¢
-²Î    Êı £º pFile ---- ĞèÒª´ò¿ªµÄÎÄ¼ş
-			pStr ---- ĞèÒªĞ´ÈëµÄĞÅÏ¢
-			Len ---- ³¤¶È
-·µ »Ø Öµ £º 0 / 1
+å‡½æ•°åç§° ï¼š FF_OpenWrite
+åŠŸ    èƒ½ ï¼š æ‰“å¼€æ–‡ä»¶å¹¶å†™å…¥ä¿¡æ¯
+å‚    æ•° ï¼š pFile ---- éœ€è¦æ‰“å¼€çš„æ–‡ä»¶
+            pStr ---- éœ€è¦å†™å…¥çš„ä¿¡æ¯
+            Len ---- é•¿åº¦
+è¿” å› å€¼ ï¼š 0 / 1
 *************************************************/
 uint8_t FF_OpenWrite( char *pFile, void *pStr, uint16_t Len )
 {
-	uint8_t temp = 0;
-	
+    uint8_t temp = 0;
+    
     res_sd = f_open(&File, pFile, FA_CREATE_ALWAYS | FA_WRITE );
 
     if( res_sd == FR_OK )
     {
-        FATFS_DEBUG_PRINTF("´ò¿ªÎÄ¼ş³É¹¦¡£\r\n");
-        /* ½«Ö¸¶¨´æ´¢ÇøÄÚÈİĞ´Èëµ½ÎÄ¼şÄÚ */
+        FATFS_DEBUG_PRINTF("File opened success.\r\n");
+        /* å°†æŒ‡å®šå­˜å‚¨åŒºå†…å®¹å†™å…¥åˆ°æ–‡ä»¶å†… */
         res_sd = f_write(&File, pStr, Len, &bw);
         if(res_sd == FR_OK)
         {
-            FATFS_DEBUG_PRINTF("ÎÄ¼şĞ´Èë³É¹¦£¬Ğ´Èë×Ö½ÚÊı¾İ£º%d\r\n", bw);
-            FATFS_DEBUG_PRINTF("ÏòÎÄ¼şĞ´ÈëµÄÊı¾İÎª£º%s\r\n", (char*)pStr);
-			
-			temp = 1;
+            FATFS_DEBUG_PRINTF("The file is write success, Data size (unit: byte): %d.\r\n", bw);
+            FATFS_DEBUG_PRINTF("The data write to the file is: %s.\r\n", (char*)pStr);
+
+            temp = 1;
         }
         else
         {
-            FATFS_DEBUG_PRINTF("£¡£¡ÎÄ¼şĞ´ÈëÊ§°Ü¡£(error code:%d)\r\n", res_sd);
+            FATFS_DEBUG_PRINTF("!! File write failed. (error code:%d)\r\n", res_sd);
         }
         
-        f_close(&File);		// ²»ÔÙ¶ÁĞ´£¬¹Ø±ÕÎÄ¼ş
+        f_close(&File);     // ä¸å†è¯»å†™ï¼Œå…³é—­æ–‡ä»¶
     }
     else
     {
-        FATFS_DEBUG_PRINTF("£¡£¡´ò¿ª/´´½¨ÎÄ¼şÊ§°Ü¡£\r\n");
+        FATFS_DEBUG_PRINTF("!! Failed to open / create file.\r\n");
     }
-	
-	return temp;
+    
+    return temp;
 }
 
 /************************************************
-º¯ÊıÃû³Æ £º FF_OpenRead
-¹¦    ÄÜ £º ´ò¿ªÎÄ¼ş²¢¶ÁÈ¡ĞÅÏ¢
-²Î    Êı £º pFile ---- ĞèÒª´ò¿ªµÄÎÄ¼ş
-			pStr ---- ĞèÒª¶ÁÈ¡µÄĞÅÏ¢
-·µ »Ø Öµ £º 0 / 1
+å‡½æ•°åç§° ï¼š FF_OpenRead
+åŠŸ    èƒ½ ï¼š æ‰“å¼€æ–‡ä»¶å¹¶è¯»å–ä¿¡æ¯
+å‚    æ•° ï¼š pFile ---- éœ€è¦æ‰“å¼€çš„æ–‡ä»¶
+            pStr ---- éœ€è¦è¯»å–çš„ä¿¡æ¯
+è¿” å› å€¼ ï¼š 0 / 1
 *************************************************/
 uint8_t FF_OpenRead( char *pFile, void *pStr, uint16_t Len )
 {
-	uint8_t temp = 0;
-	
+    uint8_t temp = 0;
+    
     res_sd = f_open(&File, pFile, FA_OPEN_EXISTING | FA_READ);
     if(res_sd == FR_OK)
     {
-        FATFS_DEBUG_PRINTF("´ò¿ªÎÄ¼ş³É¹¦¡£\r\n");
-		/* ½«ÎÄ¼şÄÚÈİ¶ÁÈ¡µ½Ö¸¶¨´æ´¢ÇøÄÚ */
+        FATFS_DEBUG_PRINTF("File opened success.\r\n");
+        /* å°†æ–‡ä»¶å†…å®¹è¯»å–åˆ°æŒ‡å®šå­˜å‚¨åŒºå†… */
         res_sd = f_read(&File, pStr, Len, &br);
         if(res_sd == FR_OK)
         {
-            FATFS_DEBUG_PRINTF("ÎÄ¼ş¶ÁÈ¡³É¹¦,¶Áµ½×Ö½ÚÊı¾İ£º%d\r\n",br);
-            FATFS_DEBUG_PRINTF("¶ÁÈ¡µÃµÄÎÄ¼şÊı¾İÎª£º%s\r\n", (char*)pStr);
-			
-			temp = 1;
+            FATFS_DEBUG_PRINTF("The file is read success, Data size (unit: byte): %d.\r\n",br);
+            FATFS_DEBUG_PRINTF("The data read to the file is: %s.\r\n", (char*)pStr);
+            
+            temp = 1;
         }
         else
         {
-            FATFS_DEBUG_PRINTF("£¡£¡ÎÄ¼ş¶ÁÈ¡Ê§°Ü¡£(error code:%d)\r\n",res_sd);
+            FATFS_DEBUG_PRINTF("!! File read failed. (error code:%d)\r\n", res_sd);
         }
     }
     else
     {
-        FATFS_DEBUG_PRINTF("£¡£¡´ò¿ªÎÄ¼şÊ§°Ü¡£\r\n");
+        FATFS_DEBUG_PRINTF("!! Failed to open file.\r\n");
     }
     
-    f_close(&File);		// ²»ÔÙ¶ÁĞ´£¬¹Ø±ÕÎÄ¼ş
+    f_close(&File);     // ä¸å†è¯»å†™ï¼Œå…³é—­æ–‡ä»¶
 
-	return temp;
+    return temp;
 }
 
 /************************************************
-º¯ÊıÃû³Æ £º FF_ViewRootDir
-¹¦    ÄÜ £º FatfsÎÄ¼şÉ¨ÃèÏÔÊ¾
-²Î    Êı £º Drive ---- ÅÌ·û
-·µ »Ø Öµ £º ÎŞ
+å‡½æ•°åç§° ï¼š FF_ViewRootDir
+åŠŸ    èƒ½ ï¼š Fatfsæ–‡ä»¶æ‰«ææ˜¾ç¤º
+å‚    æ•° ï¼š Drive ---- ç›˜ç¬¦
+è¿” å› å€¼ ï¼š æ— 
 *************************************************/
 void FF_ViewRootDir( char *pDrive )
 {
-    /* ±¾º¯ÊıÊ¹ÓÃµÄ¾Ö²¿±äÁ¿Õ¼ÓÃ½Ï¶à£¬ÇëĞŞ¸ÄÆô¶¯ÎÄ¼ş£¬±£Ö¤¶ÑÕ»¿Õ¼ä¹»ÓÃ */
+    /* æœ¬å‡½æ•°ä½¿ç”¨çš„å±€éƒ¨å˜é‡å ç”¨è¾ƒå¤šï¼Œè¯·ä¿®æ”¹å¯åŠ¨æ–‡ä»¶ï¼Œä¿è¯å †æ ˆç©ºé—´å¤Ÿç”¨ */
     DIR DirInf;
     FILINFO FileInf;
     uint32_t cnt = 0;
 
-    /* ´ò¿ª¸ùÎÄ¼ş¼Ğ */
+    /* æ‰“å¼€æ ¹æ–‡ä»¶å¤¹ */
     res_sd = f_opendir(&DirInf, pDrive);
     if (res_sd != FR_OK)
     {
-        FATFS_DEBUG_PRINTF("£¡£¡´ò¿ª¸ùÄ¿Â¼Ê§°Ü¡£(error code:%d)\r\n", res_sd);
+        FATFS_DEBUG_PRINTF("ï¼ï¼æ‰“å¼€æ ¹ç›®å½•å¤±è´¥ã€‚(error code:%d)\r\n", res_sd);
         return;
     }
 
-    /* ¶ÁÈ¡µ±Ç°ÎÄ¼ş¼ĞÏÂµÄÎÄ¼şºÍÄ¿Â¼ */
-	FATFS_DEBUG_PRINTF("µ±Ç°ÎÄ¼ş¼ĞÏÂµÄÎÄ¼şĞÅÏ¢£º");
-    FATFS_DEBUG_PRINTF("\r\n|      ÊôĞÔ      |  ÎÄ¼ş´óĞ¡  | ÎÄ¼şÃû\r\n");
+    /* è¯»å–å½“å‰æ–‡ä»¶å¤¹ä¸‹çš„æ–‡ä»¶å’Œç›®å½• */
+    FATFS_DEBUG_PRINTF("å½“å‰æ–‡ä»¶å¤¹ä¸‹çš„æ–‡ä»¶ä¿¡æ¯ï¼š");
+    FATFS_DEBUG_PRINTF("\r\n|      å±æ€§      |  æ–‡ä»¶å¤§å°  | æ–‡ä»¶å\r\n");
     for (cnt = 0; ;cnt++)
     {
-        res_sd = f_readdir(&DirInf, &FileInf);         /* ¶ÁÈ¡Ä¿Â¼Ïî£¬Ë÷Òı»á×Ô¶¯ÏÂÒÆ */
+        res_sd = f_readdir(&DirInf, &FileInf);         /* è¯»å–ç›®å½•é¡¹ï¼Œç´¢å¼•ä¼šè‡ªåŠ¨ä¸‹ç§» */
         if (res_sd != FR_OK || FileInf.fname[0] == 0)
         {
             break;
@@ -211,35 +211,35 @@ void FF_ViewRootDir( char *pDrive )
             continue;
         }
 
-        /* ÅĞ¶ÏÊÇÎÄ¼şÀàĞÍ¼°Ä¿Â¼Ä¿Â¼ */
-		switch(FileInf.fattrib)
-		{
-			case AM_DIR:
-				FATFS_DEBUG_PRINTF("| (0x%02X)×ÓÄ¿Â¼  ", FileInf.fattrib);
-				break;
-			case AM_RDO:
-				FATFS_DEBUG_PRINTF("| (0x%02X)Ö»¶ÁÎÄ¼ş", FileInf.fattrib);
-				break;
-			case AM_HID:
-				FATFS_DEBUG_PRINTF("| (0x%02X)Òş²ØÎÄ¼ş", FileInf.fattrib);
-				break;
-			case AM_SYS:
-				FATFS_DEBUG_PRINTF("| (0x%02X)ÏµÍ³ÎÄ¼ş", FileInf.fattrib);
-				break;
-			case AM_ARC:
-				FATFS_DEBUG_PRINTF("| (0x%02X)´æµµÎÄ¼ş", FileInf.fattrib);
-				break;
-			default:
-				FATFS_DEBUG_PRINTF("| (0x%02X)Î´ÖªÀàĞÍ", FileInf.fattrib);
-				break;
-		}
+        /* åˆ¤æ–­æ˜¯æ–‡ä»¶ç±»å‹åŠç›®å½•ç›®å½• */
+        switch(FileInf.fattrib)
+        {
+            case AM_DIR:
+                FATFS_DEBUG_PRINTF("| (0x%02X)å­ç›®å½•  ", FileInf.fattrib);
+                break;
+            case AM_RDO:
+                FATFS_DEBUG_PRINTF("| (0x%02X)åªè¯»æ–‡ä»¶", FileInf.fattrib);
+                break;
+            case AM_HID:
+                FATFS_DEBUG_PRINTF("| (0x%02X)éšè—æ–‡ä»¶", FileInf.fattrib);
+                break;
+            case AM_SYS:
+                FATFS_DEBUG_PRINTF("| (0x%02X)ç³»ç»Ÿæ–‡ä»¶", FileInf.fattrib);
+                break;
+            case AM_ARC:
+                FATFS_DEBUG_PRINTF("| (0x%02X)å­˜æ¡£æ–‡ä»¶", FileInf.fattrib);
+                break;
+            default:
+                FATFS_DEBUG_PRINTF("| (0x%02X)æœªçŸ¥ç±»å‹", FileInf.fattrib);
+                break;
+        }
 
-        /* ´òÓ¡ÎÄ¼ş´óĞ¡, ×î´ó4G */
-        FATFS_DEBUG_PRINTF(" |%10d ", FileInf.fsize);
+        /* æ‰“å°æ–‡ä»¶å¤§å°, æœ€å¤§4G */
+        FATFS_DEBUG_PRINTF(" |%10ld ", FileInf.fsize);
 
-        FATFS_DEBUG_PRINTF(" | %s\r\n", (char *)FileInf.fname);    /* ³¤ÎÄ¼şÃû */
+        FATFS_DEBUG_PRINTF(" | %s\r\n", (char *)FileInf.fname);     /* é•¿æ–‡ä»¶å */
     }
-	FATFS_DEBUG_PRINTF("\r\n\n");
+    FATFS_DEBUG_PRINTF("\r\n\n");
 }
 
 

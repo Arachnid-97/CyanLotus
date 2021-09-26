@@ -30,7 +30,8 @@
                 "${workspaceFolder}/middleware/freemodbus/modbus/rtu",
                 "${workspaceFolder}/App/W25Qxx",
                 "${workspaceFolder}/App/AT24Cxx",
-                "${workspaceFolder}/App/SDCard"
+                "${workspaceFolder}/App/SDCard",
+                "${workspaceFolder}/App/Fatfs"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",
