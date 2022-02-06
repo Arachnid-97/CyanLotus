@@ -31,7 +31,9 @@
                 "${workspaceFolder}/App/W25Qxx",
                 "${workspaceFolder}/App/AT24Cxx",
                 "${workspaceFolder}/App/SDCard",
-                "${workspaceFolder}/App/Fatfs"
+                "${workspaceFolder}/App/Fatfs",
+                "${workspaceFolder}/middleware/CanFestival-3-10/include",
+                "${workspaceFolder}/App/CANOpen"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",

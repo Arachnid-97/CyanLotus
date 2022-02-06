@@ -129,6 +129,20 @@ $(MIDDLEWARE_DIR)/freemodbus/modbus/rtu/mbrtu.c
 
 MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/ff14/source/*.c)
 
+MIDDLEWARE_SRC +=  \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/dcf.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/emcy.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/lifegrd.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/lss.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/nmtMaster.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/nmtSlave.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/objacces.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/pdo.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/sdo.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/states.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/sync.c \
+$(MIDDLEWARE_DIR)/CanFestival-3-10/src/timer.c
+
 
 #######################################
 # Include path
@@ -147,7 +161,8 @@ USER_INC =  \
 -I$(SUBDIRS)/SerialPort/ \
 -I$(SUBDIRS)/Modbus/port \
 -I$(SUBDIRS)/SDCard \
--I$(SUBDIRS)/Fatfs
+-I$(SUBDIRS)/Fatfs \
+-I$(SUBDIRS)/CANOpen
 
 # middleware includes
 MIDDLEWARE_INC +=  \
@@ -166,6 +181,8 @@ MIDDLEWARE_INC +=  \
 -I$(MIDDLEWARE_DIR)/freemodbus/modbus/rtu
 
 MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/ff14/source
+
+MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/CanFestival-3-10/include
 
 
 ######################################

@@ -13,3 +13,6 @@
 [submodule "Firmware/Application/tools/SWO-Parser"]
 	path = Firmware/Application/tools/SWO-Parser
 	url = git@github.com:Arachnid-97/SWO-Parser.git
+[submodule "Firmware/Application/middleware/CanFestival-3-10"]
+	path = Firmware/Application/middleware/CanFestival-3-10
+	url = git@github.com:Arachnid-97/CanFestival-3.git
