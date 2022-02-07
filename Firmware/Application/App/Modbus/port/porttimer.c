@@ -49,8 +49,8 @@ xMBPortTimersInit( USHORT usTim1Timerout50us )
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     TIM_DeInit(TIM2);
 
-	/* Compute the prescaler value */
-	PrescalerValue = (uint16_t)(SystemCoreClock / 10000) - 1;		// 100us
+    /* Compute the prescaler value */
+    PrescalerValue = (uint16_t)(SystemCoreClock / 10000) - 1;       // 100us
 
     TIM_TimeBaseStructure.TIM_Period = 41 - 1;                      // 自动重装载寄存器的值
     TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;           // 时钟预分频数
@@ -61,8 +61,8 @@ xMBPortTimersInit( USHORT usTim1Timerout50us )
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
-    NVIC_Init(&NVIC_InitStructure);	
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 
     TIM_ClearFlag(TIM2, TIM_FLAG_Update);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
@@ -97,7 +97,7 @@ inline void
 vMBPortTimersDisable(  )
 {
     /* Disable any pending timers. */
-	TIM_Cmd(TIM2, DISABLE);
+    TIM_Cmd(TIM2, DISABLE);
 }
 
 /* Create an ISR which is called whenever the timer has expired. This function

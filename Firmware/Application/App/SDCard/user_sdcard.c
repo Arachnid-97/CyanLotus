@@ -4,6 +4,8 @@
 #include "bsp_uart.h"
 
 
+#define PARTICULAR_MEMORY           __attribute__ ((section (".mb1text")))
+
 /* ≤‚ ‘π¶ƒ‹∫Í—°‘Ò */
 #define _SDCARD_TEST				1
 
@@ -23,8 +25,8 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 #define SD_OPERATION_END            3
 
 /* Private variables ---------------------------------------------------------*/
-uint8_t Buffer_Block_Tx[SD_BLOCK_SIZE], Buffer_Block_Rx[SD_BLOCK_SIZE];
-uint8_t Buffer_MultiBlock_Tx[MULTI_BUFFER_SIZE], Buffer_MultiBlock_Rx[MULTI_BUFFER_SIZE];
+uint8_t Buffer_Block_Tx[SD_BLOCK_SIZE] PARTICULAR_MEMORY, Buffer_Block_Rx[SD_BLOCK_SIZE] PARTICULAR_MEMORY;
+uint8_t Buffer_MultiBlock_Tx[MULTI_BUFFER_SIZE] PARTICULAR_MEMORY, Buffer_MultiBlock_Rx[MULTI_BUFFER_SIZE] PARTICULAR_MEMORY;
 volatile TestStatus EraseStatus = FAILED, TransferStatus1 = FAILED, TransferStatus2 = FAILED;
 SD_Error Status = SD_OK;
 __IO uint32_t SDCardOperation = SD_OPERATION_ERASE;

@@ -101,7 +101,8 @@ $(SUBDIRS)/SDCard/stm324x9i_eval_sdio_sd.c \
 $(SUBDIRS)/SDCard/user_sdcard.c \
 $(SUBDIRS)/Fatfs/sd_diskio.c \
 $(SUBDIRS)/Fatfs/user_fatfs.c \
-$(wildcard $(SUBDIRS)/CANOpen/*.c)
+$(wildcard $(SUBDIRS)/CANOpen/*.c) \
+$(wildcard $(SUBDIRS)/MQTT/*.c)
 
 # middleware source.
 MIDDLEWARE_SRC +=  \
@@ -145,6 +146,7 @@ $(MIDDLEWARE_DIR)/CanFestival-3-10/src/states.c \
 $(MIDDLEWARE_DIR)/CanFestival-3-10/src/sync.c \
 $(MIDDLEWARE_DIR)/CanFestival-3-10/src/timer.c
 
+MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/paho.mqtt.embedded-c/MQTTPacket/src/*.c)
 
 #######################################
 # Include path
@@ -164,7 +166,8 @@ USER_INC =  \
 -I$(SUBDIRS)/Modbus/port \
 -I$(SUBDIRS)/SDCard \
 -I$(SUBDIRS)/Fatfs \
--I$(SUBDIRS)/CANOpen
+-I$(SUBDIRS)/CANOpen \
+-I$(SUBDIRS)/MQTT
 
 # middleware includes.
 MIDDLEWARE_INC +=  \
@@ -186,6 +189,7 @@ MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/ff14/source
 
 MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/CanFestival-3-10/include
 
+MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/paho.mqtt.embedded-c/MQTTPacket/src
 
 ######################################
 # source
@@ -349,6 +353,9 @@ CFLAGS += -std=gnu11
 CFLAGS += -fstack-usage
 
 # CFLAGS += -Wstack-usage=128
+
+# This avoids getting a potentially unaligned pointer.
+CFLAGS += -Wno-address-of-packed-member
 
 #######################################
 # LDFLAGS

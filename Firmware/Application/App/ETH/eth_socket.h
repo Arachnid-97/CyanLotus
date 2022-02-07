@@ -22,7 +22,7 @@ typedef enum
 void TCP_Send(TCPPort_TypeDef Port, const void *data, uint16_t size);
 int TCPIP_Errno(void);
 
-void vEthernet_Task( void *pvParameters );
+void Ethernet_Init(void);
 
 
 #endif /* __ETH_SOCKET_H */

@@ -34,10 +34,21 @@
 
 
 #define LWIP_NO_INTTYPES_H	1
-
+/* Portability defines for printf formatters */
+#if LWIP_NO_INTTYPES_H
+#define U8_F  "c"
+#define S8_F  "c"
+#define X8_F  "02x"
+#define U16_F "u"
+#define S16_F "d"
+#define X16_F "x"
+#define U32_F "u"
+#define S32_F "d"
+#define X32_F "x"
+#define SZT_F "u"
+#endif /* LWIP_NO_INTTYPES_H */
 
 #define LWIP_NO_STDINT_H	1
-
 /* Typedefs for the types used by lwip */
 #if LWIP_NO_STDINT_H
 typedef unsigned char  u8_t;
@@ -51,7 +62,6 @@ typedef u32_t          mem_ptr_t;
 
 
 #define LWIP_TIMEVAL_PRIVATE    0
-
 #if !LWIP_TIMEVAL_PRIVATE
 #include <sys/time.h>
 #endif /* LWIP_TIMEVAL_PRIVATE */

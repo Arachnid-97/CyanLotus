@@ -253,22 +253,11 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 */
 #define LWIP_DEBUG
 #ifdef LWIP_DEBUG
-#define U8_F  "c"
-#define S8_F  "c"
-#define X8_F  "02x"
-#define U16_F "u"
-#define S16_F "d"
-#define X16_F "x"
-#define U32_F "u"
-#define S32_F "d"
-#define X32_F "x"
-#define SZT_F "u"
+// #define API_MSG_DEBUG       LWIP_DBG_ON
+// #define SOCKETS_DEBUG       LWIP_DBG_ON
+// #define TCP_INPUT_DEBUG     LWIP_DBG_ON
+// #define TCP_DEBUG           LWIP_DBG_ON
 #endif /* LWIP_DEBUG */
-
-//#define API_MSG_DEBUG       LWIP_DBG_ON
-//#define SOCKETS_DEBUG       LWIP_DBG_ON
-//#define TCP_INPUT_DEBUG     LWIP_DBG_ON
-//#define TCP_DEBUG           LWIP_DBG_ON
 
 
 /*
@@ -355,9 +344,14 @@ u32_t lwip_rand(void);
  * in seconds. (does not require sockets.c, and will affect tcp.c)
  */
 #define LWIP_TCP_KEEPALIVE              1
-// #define TCP_KEEPIDLE_DEFAULT            12000	// 12秒内连接双方都无数据，则发起保活探测（该值默认为 2小时）
-// #define TCP_KEEPINTVL_DEFAULT           5000	// 每 5秒发送一次保活探测
-// #define TCP_KEEPCNT_DEFAULT             3		// 一共发送 3次保活探测包，如果这 3个包对方均无回应，则表示连接异常，内核关闭连接，并发送 err回调到用户程序
+#if !LWIP_TCP_KEEPALIVE
+/* Please leave the default values, compliant with RFC 1122. 
+   Don't change this unless you know what you're doing.
+   The following defaults are found in tcp_priv.h */
+// #define TCP_KEEPIDLE_DEFAULT            12000   // 12秒内连接双方都无数据，则发起保活探测（该值默认为 2小时）
+// #define TCP_KEEPINTVL_DEFAULT           5000    // 每 5秒发送一次保活探测（该值默认为 75秒）
+// #define TCP_KEEPCNT_DEFAULT             3       // 一共发送 3次保活探测包，如果这 3个包对方均无回应，则表示连接异常，内核关闭连接，并发送 err回调到用户程序(该值默认为 9次)
+#endif /* LWIP_TCP_KEEPALIVE */
 
 /**
  * MEMP_NUM_NETBUF: the number of struct netbufs.

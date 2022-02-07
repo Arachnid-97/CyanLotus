@@ -32,6 +32,7 @@
 #include "user_sdcard.h"
 #include "user_fatfs.h"
 #include "canopen_app.h"
+#include "mqtt_socket.h"
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -145,17 +146,19 @@ static void prvUser_Task( void *pvParameters )
     cJSON_InitHooks(&cJSON_mem);
 
     /* User-defined private tasks */
-	// xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
-    // xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
+    // xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-    Virtual_Serial_Init();
-    eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
-    eMBEnable();
+    Ethernet_Init();
+    MQTT_Init();
+
+    // Virtual_Serial_Init();
+    // eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
+    // eMBEnable();
 
     CANOpen_App_Init();
 
-    SD_test();
-    FF_Test();
+    // SD_test();
+    // FF_Test();
 
     // uint8_t temp[] = "hello world!";
 

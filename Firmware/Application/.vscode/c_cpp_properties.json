@@ -33,7 +33,9 @@
                 "${workspaceFolder}/App/SDCard",
                 "${workspaceFolder}/App/Fatfs",
                 "${workspaceFolder}/middleware/CanFestival-3-10/include",
-                "${workspaceFolder}/App/CANOpen"
+                "${workspaceFolder}/App/CANOpen",
+                "${workspaceFolder}/middleware/paho.mqtt.embedded-c/MQTTPacket/src",
+                "${workspaceFolder}/App/MQTT",
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",

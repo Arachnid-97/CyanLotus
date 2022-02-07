@@ -28,7 +28,22 @@
         "user_sdcard.h": "c",
         "sdcard_base.h": "c",
         "stm324x9i_eval_sdio_sd.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "testmaster.h": "c",
+        "can_drv.h": "c",
+        "canfestival.h": "c",
+        "task.h": "c",
+        "bsp_can.h": "c",
+        "sockets.h": "c",
+        "sys.h": "c",
+        "netif.h": "c",
+        "mqttclient.h": "c",
+        "mqttpacket.h": "c",
+        "mqttfreertos.h": "c",
+        "transport.h": "c",
+        "netdb.h": "c",
+        "semphr.h": "c",
+        "bsp_flash.h": "c"
     },
     "search.exclude": {
         "**/.vscode": true,
@@ -47,7 +62,8 @@
         "**/Drivers/CMSIS/DSP_Lib": true,
         "**/ff14/documents": true,
         "**/freemodbus/demo": true,
-        "**/FreeRTOS-Plus": true
+        "**/FreeRTOS-Plus": true,
+        "**/paho.mqtt.embedded-c/MQTTClient": true
     },
     "search.showLineNumbers": true,
     "terminal.explorerKind": "external",
