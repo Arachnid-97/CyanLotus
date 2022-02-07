@@ -31,14 +31,14 @@
 #include "virtual_serial.h"
 #include "user_sdcard.h"
 #include "user_fatfs.h"
-
+#include "canopen_app.h"
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
-#include "task.h"			// 任务
-#include "queue.h"			// 队列
-#include "semphr.h"			// 信号量
-#include "event_groups.h"	// 事件组
+#include "task.h"           // 任务
+#include "queue.h"          // 队列
+#include "semphr.h"         // 信号量
+#include "event_groups.h"   // 事件组
 
 /* Middware includes. */
 #include "cJSON.h"
@@ -51,7 +51,7 @@
 
 /* Public parameters */
 #if configAPPLICATION_ALLOCATED_HEAP
-uint8_t ucHeap[configTOTAL_HEAP_SIZE] __attribute__ ((section (".memory_b1_text")));
+uint8_t ucHeap[configTOTAL_HEAP_SIZE] __attribute__ ((section (".mb1text")));
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 cJSON_Hooks cJSON_mem = {NULL, NULL};
@@ -113,12 +113,12 @@ int main( void )
     prvSetupHardware();
 
     /* Start the tasks defined within this file/specific to this demo. */
-    xReturn = xTaskCreate( (TaskFunction_t)prvUser_Task,			/* 任务入口函数 */
-                           (const char *)"prvUser_Task",			/* 任务名字 */
-                           (uint16_t)configMINIMAL_STACK_SIZE,		/* 任务栈大小 */
-                           (void *)NULL,							/* 任务入口函数参数 */
-                           (UBaseType_t)mainCREATOR_TASK_PRIORITY,	/* 任务的优先级 */
-                           (TaskHandle_t *)UserTaskCreate_Handle );	/* 任务控制块指针 */
+    xReturn = xTaskCreate( (TaskFunction_t)prvUser_Task,            /* 任务入口函数 */
+                           (const char *)"prvUser_Task",            /* 任务名字 */
+                           (uint16_t)configMINIMAL_STACK_SIZE,      /* 任务栈大小 */
+                           (void *)NULL,                            /* 任务入口函数参数 */
+                           (UBaseType_t)mainCREATOR_TASK_PRIORITY,  /* 任务的优先级 */
+                           (TaskHandle_t *)UserTaskCreate_Handle ); /* 任务控制块指针 */
 
     if(pdPASS == xReturn) {
         /* Start the scheduler. */
@@ -140,19 +140,21 @@ int main( void )
 *************************************************/
 static void prvUser_Task( void *pvParameters )
 {
-	cJSON_mem.malloc_fn = pvPortMalloc;
-	cJSON_mem.free_fn = vPortFree;
-	cJSON_InitHooks(&cJSON_mem);
+    cJSON_mem.malloc_fn = pvPortMalloc;
+    cJSON_mem.free_fn = vPortFree;
+    cJSON_InitHooks(&cJSON_mem);
 
     /* User-defined private tasks */
 	// xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
     // xTaskCreate( vEthernet_Task, "vEthernet_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-    // Virtual_Serial_Init();
-	// eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
-	// eMBEnable();
+    Virtual_Serial_Init();
+    eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
+    eMBEnable();
 
-    // SD_test();
+    CANOpen_App_Init();
+
+    SD_test();
     FF_Test();
 
     // uint8_t temp[] = "hello world!";
@@ -167,8 +169,8 @@ static void prvUser_Task( void *pvParameters )
         vTaskDelay(10 / portTICK_RATE_MS);
     }
     
-//	printf("prvUser_Task delete.\r\n\n");
-    vTaskDelete(UserTaskCreate_Handle);		// 删除自己
+    // printf("prvUser_Task delete.\r\n\n");
+    vTaskDelete(UserTaskCreate_Handle); // 删除自己
 }
 
 /************************************************
@@ -210,6 +212,27 @@ static void prvSetupHardware( void )
 	printf("   * Note             : COPYRIGHT(c) 2021 Arachnid\r\n");
 	printf(" ****************************************************\r\n\r\n");
     fflush(stdout);
+
+
+	RAW_PRINTF(ENABLE, "\n");
+	/* 上电处理 */
+	if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET){ /* 是否为 iwdg复位 */
+		LOG_PRINTF(ERROR, "IWDG reset");
+	}
+	else if (RCC_GetFlagStatus(RCC_FLAG_PINRST) != RESET){
+		LOG_PRINTF(WARNING, "NRST PIN reset");
+	}
+	else if (RCC_GetFlagStatus(RCC_FLAG_SFTRST) != RESET){
+		/* 软复位上电 */
+		LOG_PRINTF(WARNING, "Software reset");
+	}
+	else{
+		LOG_PRINTF(WARNING, "MCU reset start");
+	}
+    RCC_ClearFlag();
+	
+	RAW_PRINTF(ENABLE, "\n");
+
 }
 
 /*----------------------------- End -----------------------------*/

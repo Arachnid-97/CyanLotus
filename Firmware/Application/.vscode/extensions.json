@@ -8,9 +8,12 @@
 		"marus25.cortex-debug",
         "dan-c-underwood.arm",
         "keroc.hex-fmt",
-		"blindtiger.masm",
+		// "blindtiger.masm",
 		"zixuanwang.linkerscript",
         "trond-snekvik.gnu-mapfiles",
+		"slevesque.vscode-hexdump",
+		"alefragnani.bookmarks",
+		"vscode-icons-team.vscode-icons"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [

@@ -70,7 +70,7 @@
  
 /* Here is a good place to include header files that are required across
 your application. */
-#include "stm32f4xx.h"
+// #include "stm32f4xx.h"
 
 
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)

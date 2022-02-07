@@ -256,7 +256,7 @@ GETCHAR_PROTOTYPE
 }
 
 /************************************************************************/
-/*            STM32F10x USART Interrupt Handlers                        */
+/*            STM32F4xx USART Interrupt Handlers                        */
 /************************************************************************/
 /**
   * @brief  This function handles USART1 global interrupt request.

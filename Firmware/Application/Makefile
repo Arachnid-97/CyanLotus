@@ -6,6 +6,7 @@
 # Generic Makefile (based on gcc)
 #
 # ChangeLog :
+#    2022-02-07 - Improve the output script information
 #    2021-07-28 - On-chip ITM debugging + python script output
 #    2021-07-16 - Submodule detection + on-chip operation
 #    2021-05-08 - Simplify the display + complete information
@@ -18,30 +19,30 @@
 ######################################
 TARGET = Application
 
-# Version info
+# Version info.
 VERSIONS ?= \"V0.0.1\"
 
-# System clock frequency
+# System clock frequency.
 SYSCLK ?= 168MHz
 
-# High speed external clock frequency
+# High speed external clock frequency.
 HSE_CLOCK ?= 8MHz
 
-# Memory size
+# Memory size.
 MEM_SIZE_FLASH ?= 2048K
 MEM_SIZE_RAM ?= 192K
 
 MEM_SIZE_CCM ?= 64K
 
-# Offset Address
+# Offset Address.
 OFFSET_ADDRESS ?= 0x00000000
 
 BASE_ADDRESS = 0x08000000
 
-# GDB debug TCL server port
+# GDB debug TCL server port.
 TCL_PORT ?= 
 
-# Parametric switch
+# Parametric switch.
 SYSCLK := $(subst MHz,000000,$(SYSCLK))
 HSE_CLOCK := $(subst MHz,000000,$(HSE_CLOCK))
 
@@ -55,34 +56,34 @@ OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
 # debug build?
 DEBUG ?= 0
 
-# SRAM debug start
+# SRAM debug start.
 SRAM_START ?= 0
 
-# optimization
-# option O0/O1/O2/O3/Og/Os
+# optimization:
+# option O0/O1/O2/O3/Og/Os.
 OPT = -Og
 
 
 #######################################
 # paths
 #######################################
-# Path to the base address
+# Path to the base address.
 PATHS_BASE ?= .
 
-# Build path
+# Build path.
 BUILD_DIR = $(PATHS_BASE)/build
 
-# middleware path
+# middleware path.
 MIDDLEWARE_DIR = $(PATHS_BASE)/middleware
 
-# user path
+# user path.
 SUBDIRS ?= $(PATHS_BASE)/App
 
 
 #######################################
 # Source file
 #######################################
-# user source
+# user source.
 USER_SRC = $(wildcard $(SUBDIRS)/*.c)
 USER_SRC +=  \
 $(SUBDIRS)/MD5/md5.c \
@@ -99,9 +100,10 @@ $(SUBDIRS)/SDCard/sdcard_base.c \
 $(SUBDIRS)/SDCard/stm324x9i_eval_sdio_sd.c \
 $(SUBDIRS)/SDCard/user_sdcard.c \
 $(SUBDIRS)/Fatfs/sd_diskio.c \
-$(SUBDIRS)/Fatfs/user_fatfs.c
+$(SUBDIRS)/Fatfs/user_fatfs.c \
+$(wildcard $(SUBDIRS)/CANOpen/*.c)
 
-# middleware source
+# middleware source.
 MIDDLEWARE_SRC +=  \
 $(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/*.c) \
 # $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
@@ -147,7 +149,7 @@ $(MIDDLEWARE_DIR)/CanFestival-3-10/src/timer.c
 #######################################
 # Include path
 #######################################
-# user includes
+# user includes.
 USER_INC =  \
 -I$(SUBDIRS) \
 -I$(SUBDIRS)/MD5 \
@@ -164,7 +166,7 @@ USER_INC =  \
 -I$(SUBDIRS)/Fatfs \
 -I$(SUBDIRS)/CANOpen
 
-# middleware includes
+# middleware includes.
 MIDDLEWARE_INC +=  \
 -I$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/include \
 -I$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F
@@ -190,31 +192,39 @@ MIDDLEWARE_INC += -I$(MIDDLEWARE_DIR)/CanFestival-3-10/include
 ######################################
 Drivers_Src = Drivers/STM32F4xx_StdPeriph_Driver/src
 
-# C sources
+# C sources.
 C_SOURCES =  \
 $(PATHS_BASE)/syscalls.c \
 $(PATHS_BASE)/Core/main.c \
 $(PATHS_BASE)/Core/stm32f4xx_it.c \
 $(PATHS_BASE)/Core/system_stm32f4xx.c \
-$(PATHS_BASE)/$(Drivers_Src)/misc.c \
-$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_rcc.c \
-$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_gpio.c \
-$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_usart.c \
 $(PATHS_BASE)/Core/Src/bsp_uart.c \
 $(PATHS_BASE)/Core/Src/bsp_clock.c \
 $(PATHS_BASE)/Core/Src/bsp.c \
 $(PATHS_BASE)/Core/Src/stm32f4x7_eth_bsp.c \
-$(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c \
+$(PATHS_BASE)/Core/Src/bsp_can.c
+
+# Driver library.
+C_SOURCES +=  \
+$(PATHS_BASE)/$(Drivers_Src)/misc.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_rcc.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_gpio.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_usart.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_syscfg.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_tim.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_dma.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_exti.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_sdio.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_can.c
+
+# ETH library.
+C_SOURCES +=  \
+$(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c
 
 C_SOURCES += $(USER_SRC)
 C_SOURCES += $(MIDDLEWARE_SRC)
 
-# ASM sources
+# ASM sources.
 ASM_SOURCES =  \
 $(PATHS_BASE)/startup_stm32f429xx.s
 
@@ -222,16 +232,16 @@ $(PATHS_BASE)/startup_stm32f429xx.s
 #######################################
 # Tools
 #######################################
-# openocd
+# openocd.
 OPENOCD           ?= openocd
 OPENOCD_INTERFACE ?= interface/stlink.cfg
 OPENOCD_CMDS      ?=
 OPENOCD_TARGET    ?= target/stm32f4x.cfg
 
-# python
+# python.
 PYTHON            ?= python
 
-# bc calculator
+# bc calculator.
 BC                ?= bc
 
 #######################################
@@ -263,23 +273,23 @@ BIN = $(CP) -O binary -S
 #######################################
 # AS/CFLAGS
 #######################################
-# cpu
+# cpu.
 CPU = -mcpu=cortex-m4
 
-# NONE for Cortex-M0/M0+/M3
-# fpu
+# NONE for Cortex-M0/M0+/M3.
+# fpu.
 FPU = -mfpu=fpv4-sp-d16
-# float-abi
+# float-abi.
 FLOAT-ABI = -mfloat-abi=hard
 
-# mcu
+# mcu.
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
-# macros for gcc
-# AS defines
+# macros for gcc.
+# AS defines.
 AS_DEFS = 
 
-# C defines
+# C defines.
 C_DEFS =  \
 -DUSE_STDPERIPH_DRIVER \
 -DSTM32F429_439xx \
@@ -300,10 +310,10 @@ ifeq ($(SRAM_START), 1)
 C_DEFS += -DVECT_TAB_SRAM
 endif
 
-# AS includes
+# AS includes.
 AS_INCLUDES = 
 
-# C includes
+# C includes.
 C_INCLUDES =  \
 -I$(PATHS_BASE)/Drivers/CMSIS/Device/ST/STM32F4xx/Include \
 -I$(PATHS_BASE)/Drivers/CMSIS/Include \
@@ -315,7 +325,7 @@ C_INCLUDES =  \
 C_INCLUDES += $(USER_INC)
 C_INCLUDES += $(MIDDLEWARE_INC)
 
-# compile gcc flags
+# compile gcc flags.
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -323,19 +333,19 @@ CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 
-# Prevent silent errors when converting between types (requires explicit casting)
+# Prevent silent errors when converting between types (requires explicit casting).
 # CFLAGS += -Wconversion
 
 VERSIONS = \"V9.9.9\"
 endif
 
-# Generate dependency information
+# Generate dependency information.
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
-# Compile the standard
+# Compile the standard.
 CFLAGS += -std=gnu11
 
-# Static Stack Usage Analysis
+# Static Stack Usage Analysis.
 CFLAGS += -fstack-usage
 
 # CFLAGS += -Wstack-usage=128
@@ -343,7 +353,7 @@ CFLAGS += -fstack-usage
 #######################################
 # LDFLAGS
 #######################################
-# link script
+# link script.
 ifeq ($(SRAM_START), 1)
 LDSCRIPT = $(PATHS_BASE)/STM32F429ZI_SDRAM.ld
 else
@@ -351,13 +361,13 @@ LDSCRIPT =  \
 $(PATHS_BASE)/STM32F429ZI_FLASH.ld
 endif
 
-# newlib library
+# newlib library.
 CLIBS = -specs=nano.specs
-# floating point support
+# floating point support.
 # CLIBS += -u _printf_float
 # CLIBS += -u _scanf_float
 
-# libraries
+# libraries.
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
 LDFLAGS = $(MCU) $(CLIBS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
@@ -369,20 +379,22 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).asm $(BUILD_DIR)/$(TARGET
 #######################################
 # build the application
 #######################################
-# list of objects
+# list of objects.
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
-# list of ASM program objects
+# list of ASM program objects.
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	@$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
-	@echo compiling $(notdir $<)...
+	@echo compiling $<...
+#@echo compiling $(notdir $<)...
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	@$(AS) -c $(CFLAGS) $< -o $@
-	@echo assembling $(notdir $<)...
+	@echo assembling $<...
+#@echo assembling $(notdir $<)...
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
