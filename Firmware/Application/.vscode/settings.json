@@ -43,7 +43,11 @@
         "transport.h": "c",
         "netdb.h": "c",
         "semphr.h": "c",
-        "bsp_flash.h": "c"
+        "bsp_flash.h": "c",
+        "usb_conf.h": "c",
+        "usbd_msc_mem.h": "c",
+        "usbd_def.h": "c",
+        "usb_bsp.h": "c"
     },
     "search.exclude": {
         "**/.vscode": true,

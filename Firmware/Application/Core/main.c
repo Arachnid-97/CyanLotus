@@ -148,14 +148,14 @@ static void prvUser_Task( void *pvParameters )
     /* User-defined private tasks */
     // xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-    Ethernet_Init();
-    MQTT_Init();
+    // Ethernet_Init();
+    // MQTT_Init();
 
     // Virtual_Serial_Init();
     // eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
     // eMBEnable();
 
-    CANOpen_App_Init();
+    // CANOpen_App_Init();
 
     // SD_test();
     // FF_Test();

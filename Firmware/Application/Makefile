@@ -167,7 +167,8 @@ USER_INC =  \
 -I$(SUBDIRS)/SDCard \
 -I$(SUBDIRS)/Fatfs \
 -I$(SUBDIRS)/CANOpen \
--I$(SUBDIRS)/MQTT
+-I$(SUBDIRS)/MQTT \
+-I$(SUBDIRS)/USB
 
 # middleware includes.
 MIDDLEWARE_INC +=  \
@@ -224,6 +225,41 @@ $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_can.c
 # ETH library.
 C_SOURCES +=  \
 $(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c
+
+# USB library.
+USB_HOST_EN ?= 0
+USB_DEVICE_EN ?= 1
+# USB OTG library.
+C_SOURCES +=  \
+$(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/src/usb_core.c
+# Device.
+ifeq ($(USB_DEVICE_EN), 1)
+C_SOURCES +=  \
+$(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/src/usb_dcd_int.c \
+$(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/src/usb_dcd.c
+endif
+# Host.
+ifeq ($(USB_HOST_EN), 1)
+C_SOURCES +=  \
+$(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/src/usb_hcd_int.c \
+$(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/src/usb_hcd.c
+endif
+
+# USB Device library.
+ifeq ($(USB_DEVICE_EN), 1)
+C_SOURCES +=  \
+$(wildcard $(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Core/src/*.c) \
+$(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Class/msc/src/usbd_msc_bot.c \
+$(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Class/msc/src/usbd_msc_core.c \
+$(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Class/msc/src/usbd_msc_data.c \
+$(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Class/msc/src/usbd_msc_scsi.c
+endif
+# USB Host library.
+ifeq ($(USB_HOST_EN), 1)
+C_SOURCES +=  \
+$(wildcard $(PATHS_BASE)/Drivers/STM32_USB_HOST_Library/Core/src/*.c) \
+$(wildcard $(PATHS_BASE)/Drivers/STM32_USB_HOST_Library/Class/MSC/src/*.c)
+endif
 
 C_SOURCES += $(USER_SRC)
 C_SOURCES += $(MIDDLEWARE_SRC)
@@ -314,6 +350,8 @@ ifeq ($(SRAM_START), 1)
 C_DEFS += -DVECT_TAB_SRAM
 endif
 
+C_DEFS += -DUSE_USB_OTG_FS
+
 # AS includes.
 AS_INCLUDES = 
 
@@ -325,6 +363,11 @@ C_INCLUDES =  \
 -I$(PATHS_BASE)/Core \
 -I$(PATHS_BASE)/Core/Inc \
 -I$(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/inc \
+-I$(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/inc \
+-I$(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Core/inc \
+-I$(PATHS_BASE)/Drivers/STM32_USB_Device_Library/Class/msc/inc \
+-I$(PATHS_BASE)/Drivers/STM32_USB_HOST_Library/Core/inc \
+-I$(PATHS_BASE)/Drivers/STM32_USB_HOST_Library/Class/MSC/inc
 
 C_INCLUDES += $(USER_INC)
 C_INCLUDES += $(MIDDLEWARE_INC)

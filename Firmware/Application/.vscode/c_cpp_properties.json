@@ -36,6 +36,12 @@
                 "${workspaceFolder}/App/CANOpen",
                 "${workspaceFolder}/middleware/paho.mqtt.embedded-c/MQTTPacket/src",
                 "${workspaceFolder}/App/MQTT",
+                "${workspaceFolder}/Drivers/STM32_USB_OTG_Driver/inc",
+                "${workspaceFolder}/Drivers/STM32_USB_Device_Library/Core/inc",
+                "${workspaceFolder}/Drivers/STM32_USB_Device_Library/Class/msc/inc",
+                "${workspaceFolder}/Drivers/STM32_USB_HOST_Library/Core/inc",
+                "${workspaceFolder}/Drivers/STM32_USB_HOST_Library/Class/MSC/inc",
+                "${workspaceFolder}/App/USB"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",
@@ -44,8 +50,9 @@
                 "FREERTOS",
                 "FIRMWARE_VERSIONS=\"V0.0.1\"",
                 "XBDDD=0x00000000",
-                "SYS_CLK=168000000"
+                "SYS_CLK=168000000",
                 // "VECT_TAB_SRAM"
+                "USE_USB_OTG_FS"
             ],
             "compilerPath": "arm-none-eabi-gcc",
             "cStandard": "gnu11",
