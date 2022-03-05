@@ -228,10 +228,12 @@ $(PATHS_BASE)/Drivers/STM32F4x7_ETH_Driver/src/stm32f4x7_eth.c
 
 # USB library.
 USB_HOST_EN ?= 0
-USB_DEVICE_EN ?= 1
+USB_DEVICE_EN ?= 0
 # USB OTG library.
+ifneq ($(USB_HOST_EN)_$(USB_DEVICE_EN), 0_0)
 C_SOURCES +=  \
 $(PATHS_BASE)/Drivers/STM32_USB_OTG_Driver/src/usb_core.c
+endif
 # Device.
 ifeq ($(USB_DEVICE_EN), 1)
 C_SOURCES +=  \

@@ -69,7 +69,6 @@
         "**/FreeRTOS-Plus": true,
         "**/paho.mqtt.embedded-c/MQTTClient": true
     },
-    "search.showLineNumbers": true,
     "terminal.explorerKind": "external",
     "terminal.integrated.automationShell.windows": "Git Bash",
 }

@@ -6,11 +6,10 @@
 	"recommendations": [
 		"ms-vscode.cpptools",
 		"marus25.cortex-debug",
-        "dan-c-underwood.arm",
-        "keroc.hex-fmt",
-		// "blindtiger.masm",
+		"dan-c-underwood.arm",
+		"keroc.hex-fmt",
 		"zixuanwang.linkerscript",
-        "trond-snekvik.gnu-mapfiles",
+		"trond-snekvik.gnu-mapfiles",
 		"slevesque.vscode-hexdump",
 		"alefragnani.bookmarks",
 		"vscode-icons-team.vscode-icons"
