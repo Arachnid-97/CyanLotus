@@ -21,7 +21,7 @@
 /* 函数申明 ------------------------------------------------------------------*/
 UNS8 canInit(UNS32 bitrate);
 
-void TIMx_DispatchFromISR(void);
+void InitNodes(CO_Data* d, UNS32 id, ODCallback_t Callback);
 
 
 #endif /* _CANOPEN_DRV_H */

@@ -40,17 +40,44 @@ UNS8 canInit(UNS32 bitrate)
         DEBUG_PRINTF("Create xQueueCAN_Receive failed...\r\n");
 
     /* 创建任务 */
-    xReturn = xTaskCreate(prvCANSend_Task, "prvCANSend_Task", CANTX_STACK_SIZE, NULL, CANTX_TASK_PRIORITY, NULL);
+    xReturn = xTaskCreate(prvCANSend_Task, 
+                            "prvCANSend_Task", 
+                            CANTX_STACK_SIZE, 
+                            NULL, 
+                            CANTX_TASK_PRIORITY, 
+                            NULL);
     if (pdPASS != xReturn)
         DEBUG_PRINTF("prvCANSend_Task create failed...\r\n");
 
-    xReturn = xTaskCreate(prvCANReceive_Task, "prvCANReceive_Task", CANRX_STACK_SIZE, NULL, CANRX_TASK_PRIORITY, NULL);
+    xReturn = xTaskCreate(prvCANReceive_Task, 
+                            "prvCANReceive_Task", 
+                            CANRX_STACK_SIZE, 
+                            (void *)&TestMaster_Data, 
+                            CANRX_TASK_PRIORITY, 
+                            NULL);
     if (pdPASS != xReturn)
         DEBUG_PRINTF("prvCANReceive_Task create failed...\r\n");
 
     (void)bitrate;
 
     return 0;
+}
+
+void InitNodes(CO_Data* d, UNS32 id, ODCallback_t Callback)
+{
+	/****************************** INITIALISATION MASTER/SLAVE *******************************/
+    RegisterSetODentryCallBack(d, 0x2000, 0, Callback);
+
+    /* Defining the node Id */
+    setNodeId(d, id);
+    DEBUG_PRINTF("CANOpen Get The Lifer NodeID...\r\n");
+
+    /* init */
+    setState(d, Initialisation);
+    DEBUG_PRINTF("State Machine change to Initialisation...\r\n");
+
+    // setState(d, Operational);
+    // DEBUG_PRINTF("State Machine change to Operational...\r\n");
 }
 
 /**
@@ -86,7 +113,7 @@ static void prvCANSend_Task(void *pvParameters)
     for (;;)
     {
         /* 等待接收有效数据包 */
-        if (xQueueReceive(xQueueCAN_Send, &TxMsg, 100) == pdTRUE)
+        if (xQueueReceive(xQueueCAN_Send, &TxMsg, portMAX_DELAY) == pdTRUE)
         {
             if (CAN_Transmit(CANx, &TxMsg) == CAN_NO_MB)
             {
@@ -106,28 +133,30 @@ static void prvCANSend_Task(void *pvParameters)
 static void prvCANReceive_Task(void *pvParameters)
 {
     static CanRxMsg RxMsg;
-    static Message msg;
+    static Message msg = Message_Initializer;
+    CO_Data *CAN_OD = pvParameters;
 
     uint8_t i = 0;
 
     for (;;)
     {
-        if (xQueueReceive(xQueueCAN_Receive, &RxMsg, 100) == pdTRUE)
+        /* Receive CANBUS data */
+        if (xQueueReceive(xQueueCAN_Receive, &RxMsg, portMAX_DELAY) == pdTRUE)
         {
             msg.cob_id = RxMsg.StdId; // CAN-ID
 
             if (CAN_RTR_REMOTE == RxMsg.RTR)
-                msg.rtr = 1; //远程帧
+                msg.rtr = 1; // 远程帧
             else
-                msg.rtr = 0; //数据帧
+                msg.rtr = 0; // 数据帧
 
-            msg.len = (UNS8)RxMsg.DLC; //长度
+            msg.len = (UNS8)RxMsg.DLC; // 长度
 
-            for (i = 0; i < RxMsg.DLC; i++) //数据
+            for (i = 0; i < RxMsg.DLC; i++) // 数据
                 msg.data[i] = RxMsg.Data[i];
 
             TIM_ITConfig(TIM10, TIM_IT_Update, DISABLE);
-            canDispatch(&TestMaster_Data, &msg); //调用协议相关接口
+            canDispatch(CAN_OD, &msg); // 调用协议相关接口
             TIM_ITConfig(TIM10, TIM_IT_Update, ENABLE);
         }
     }
