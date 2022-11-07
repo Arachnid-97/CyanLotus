@@ -39,6 +39,9 @@ OFFSET_ADDRESS ?= 0x00000000
 
 BASE_ADDRESS = 0x08000000
 
+# Enable RTOS
+USING_RTOS = 1
+
 # GDB debug TCL server port.
 TCL_PORT ?= 
 
@@ -56,8 +59,12 @@ OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
 # debug build?
 DEBUG ?= 0
 
+EXT_SDRAM ?= 1
+
 # SRAM debug start.
+ifneq ($(EXT_SDRAM), 1)
 SRAM_START ?= 0
+endif
 
 # optimization:
 # option O0/O1/O2/O3/Og/Os.
@@ -107,13 +114,13 @@ $(wildcard $(SUBDIRS)/MQTT/*.c)
 # middleware source.
 MIDDLEWARE_SRC +=  \
 $(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/*.c) \
-# $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
-# $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c
+$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
+$(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c
 
 # Wrappers required to use newlib malloc-family within FreeRTOS.
 MIDDLEWARE_SRC +=  \
-$(MIDDLEWARE_DIR)/FreeRTOS_Helpers/heap_useNewlib_ST.c \
-$(MIDDLEWARE_DIR)/FreeRTOS_Helpers/port_DRN.c
+# $(MIDDLEWARE_DIR)/FreeRTOS_Helpers/heap_useNewlib_ST.c \
+# $(MIDDLEWARE_DIR)/FreeRTOS_Helpers/port_DRN.c
 
 MIDDLEWARE_SRC +=  \
 $(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/api/*.c) \
@@ -207,7 +214,8 @@ $(PATHS_BASE)/Core/Src/bsp_uart.c \
 $(PATHS_BASE)/Core/Src/bsp_clock.c \
 $(PATHS_BASE)/Core/Src/bsp.c \
 $(PATHS_BASE)/Core/Src/stm32f4x7_eth_bsp.c \
-$(PATHS_BASE)/Core/Src/bsp_can.c
+$(PATHS_BASE)/Core/Src/bsp_can.c \
+$(PATHS_BASE)/Core/bsp_sdram.c
 
 # Driver library.
 C_SOURCES +=  \
@@ -220,7 +228,8 @@ $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_tim.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_dma.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_exti.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_sdio.c \
-$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_can.c
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_can.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_fmc.c
 
 # ETH library.
 C_SOURCES +=  \
@@ -281,7 +290,7 @@ OPENOCD_CMDS      ?=
 OPENOCD_TARGET    ?= target/stm32f4x.cfg
 
 # python.
-PYTHON            ?= python
+PYTHON            ?= python3
 
 # bc calculator.
 BC                ?= bc
@@ -335,24 +344,30 @@ AS_DEFS =
 C_DEFS =  \
 -DUSE_STDPERIPH_DRIVER \
 -DSTM32F429_439xx \
--DFREERTOS \
-# -DDATA_IN_ExtSDRAM
 
 C_DEFS += -DFIRMWARE_VERSIONS=$(VERSIONS)
 C_DEFS += -DXBDDD=$(OFFSET_ADDRESS)
 C_DEFS += -DSYS_CLK=$(SYSCLK)
 C_DEFS += -DHSE_VALUE=$(HSE_CLOCK)
 
+ifeq ($(USING_RTOS), 1)
+C_DEFS += -DUSING_RTOS
+endif
+
 ifeq ($(DEBUG), 1)
 C_DEFS += -DUSE_FULL_ASSERT
 C_DEFS += -DUSING_DEBUG
 endif
 
+ifeq ($(EXT_SDRAM), 1)
+C_DEFS += -DDATA_IN_ExtSDRAM
+else
 ifeq ($(SRAM_START), 1)
 C_DEFS += -DVECT_TAB_SRAM
 endif
+endif
 
-C_DEFS += -DUSE_USB_OTG_FS
+# C_DEFS += -DUSE_USB_OTG_FS
 
 # AS includes.
 AS_INCLUDES = 
@@ -406,11 +421,15 @@ CFLAGS += -Wno-address-of-packed-member
 # LDFLAGS
 #######################################
 # link script.
+ifeq ($(EXT_SDRAM), 1)
+LDSCRIPT = $(PATHS_BASE)/stm32f4xx_flash_extsdram.ld
+else
 ifeq ($(SRAM_START), 1)
 LDSCRIPT = $(PATHS_BASE)/STM32F429ZI_SDRAM.ld
 else
 LDSCRIPT =  \
 $(PATHS_BASE)/STM32F429ZI_FLASH.ld
+endif
 endif
 
 # newlib library.
@@ -426,6 +445,9 @@ LDFLAGS = $(MCU) $(CLIBS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).asm $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin sizes
+
+# Special for emulator debugging
+debugging: $(BUILD_DIR)/$(TARGET).asm sizes
 
 
 #######################################

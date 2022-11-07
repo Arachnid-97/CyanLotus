@@ -10,7 +10,7 @@
 		"keroc.hex-fmt",
 		"zixuanwang.linkerscript",
 		"trond-snekvik.gnu-mapfiles",
-		"slevesque.vscode-hexdump",
+		"ms-vscode.hexeditor",
 		"alefragnani.bookmarks",
 		"vscode-icons-team.vscode-icons"
 	],

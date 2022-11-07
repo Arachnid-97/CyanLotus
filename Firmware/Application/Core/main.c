@@ -33,6 +33,7 @@
 #include "user_fatfs.h"
 #include "canopen_app.h"
 #include "mqtt_socket.h"
+#include "bsp_sdram.h"
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -52,7 +53,7 @@
 
 /* Public parameters */
 #if configAPPLICATION_ALLOCATED_HEAP
-uint8_t ucHeap[configTOTAL_HEAP_SIZE] __attribute__ ((section (".mb1text")));
+uint8_t ucHeap[configTOTAL_HEAP_SIZE] __attribute__ ((section (".ext_sdram")));
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 cJSON_Hooks cJSON_mem = {NULL, NULL};
@@ -155,7 +156,7 @@ static void prvUser_Task( void *pvParameters )
     // eMBInit(MB_RTU, MB_DEVICE_ADDR, 0, 9600, MB_PAR_NONE);
     // eMBEnable();
 
-    CANOpen_App_Init();
+    // CANOpen_App_Init();
 
     // SD_test();
     // FF_Test();
@@ -164,6 +165,8 @@ static void prvUser_Task( void *pvParameters )
 
     // VSPD_SendByte(COM1, 0xa5);
     // VSPD_SendString(COM1, temp, sizeof(temp));
+
+    SDRAM_Test();
 
     while (1)
     {

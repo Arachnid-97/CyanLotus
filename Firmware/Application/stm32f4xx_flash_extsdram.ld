@@ -1,10 +1,9 @@
 /*
 *****************************************************************************
 **
-
 **  File        : LinkerScript.ld
 **
-**  Abstract    : Linker script for STM32F439NIHx Device with
+**  Abstract    : Linker script for STM32F429ZI Device with
 **                2048KByte FLASH, 192KByte RAM
 **
 **                Set heap size, stack size and stack location according
@@ -33,17 +32,19 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0xC00FFFFC;     /* end of RAM */
+_estack = 0x20030000;    /* end of RAM */
+
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;;      /* required amount of heap  */
-_Min_Stack_Size = 0x400;; /* required amount of stack */
+_Min_Heap_Size = 0x200;     /* required amount of heap  */
+_Min_Stack_Size = 0x400;    /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 2048K
-RAM (xrw)      : ORIGIN = 0xC0000000, LENGTH = 192K
-CCMRAM (rw)      : ORIGIN = 0x10000000, LENGTH = 64K
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 2048K
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 192K
+  EXTSDRAM (rw)  : ORIGIN = 0xC0000000, LENGTH = 1024K
+  CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 64K
 }
 
 /* Define output sections */
@@ -145,7 +146,6 @@ SECTIONS
     _eccmram = .;       /* create a global symbol at ccmram end */
   } >CCMRAM AT> FLASH
 
-  
   /* Uninitialized data section */
   . = ALIGN(4);
   .bss :
@@ -173,7 +173,17 @@ SECTIONS
     . = ALIGN(4);
   } >RAM
 
-  
+/* external sram data, do not initialize at startup */
+  .ext_sdram(NOLOAD) :
+  {
+    . = ALIGN(4);
+    _sext_sdram = .;        /* create a global symbol at ext_sram start */
+    *(.ext_sdram)
+    *(.ext_sdram*)
+
+    . = ALIGN(4);
+    _eext_sdram = .;        /* define a global symbol at ext_sram end */
+  } >EXTSDRAM AT> FLASH
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

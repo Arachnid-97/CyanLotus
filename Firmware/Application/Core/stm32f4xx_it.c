@@ -201,11 +201,11 @@ void UsageFault_Handler(void)
   * @param  None
   * @retval None
   */
-#ifndef FREERTOS
-void SVC_Handler(void)
+// #ifndef USING_RTOS
+__attribute__((weak)) void SVC_Handler(void)
 {
 }
-#endif /* FREERTOS */
+// #endif /* USING_RTOS */
 
 /**
   * @brief  This function handles Debug Monitor exception.
@@ -221,22 +221,22 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-#ifndef FREERTOS
-void PendSV_Handler(void)
+// #ifndef USING_RTOS
+__attribute__((weak)) void PendSV_Handler(void)
 {
 }
-#endif /* FREERTOS */
+// #endif /* USING_RTOS */
 
 /**
   * @brief  This function handles SysTick Handler.
   * @param  None
   * @retval None
   */
-#ifndef FREERTOS
-void SysTick_Handler(void)
+// #ifndef USING_RTOS
+__attribute__((weak)) void SysTick_Handler(void)
 {
 }
-#endif /* FREERTOS */
+// #endif /* USING_RTOS */
 
 
 /******************************************************************************/

@@ -10,7 +10,7 @@
             "executable": "./build/${workspaceRootFolderName}.elf",    // 要调试的程序
             "request": "launch",
             "type": "cortex-debug",
-            "showDevDebugOutput": false,
+            "showDevDebugOutput": "none",
             "servertype": "openocd",    // 调试器选择
             "device": "STM32F429ZI",    // 使用J-link GDB Server时必须；其他GBD Server时可选（有可能帮助自动选择 SVD文件）。支持的设备见 https://www.segger.com/downloads/supported-devices.php
             "svdFile": "${workspaceRoot}/STM32F429.svd",  // svd文件，有这个文件才能查看寄存器的值，每个单片机都不同。可以在以下地址找到 https://github.com/posborne/cmsis-svd 下载
@@ -23,7 +23,7 @@
             //     "${workspaceRoot}",
             //     "/share/openocd/scripts"
             // ],
-            "runToMain": true,
+            "runToEntryPoint": "main",
             "preLaunchTask": "Debug",   // 在调试前预先执行的任务，此处是tasks.json中的
             // "swoConfig": {
             //     "enabled": true,

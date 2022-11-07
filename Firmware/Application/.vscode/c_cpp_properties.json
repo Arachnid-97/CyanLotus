@@ -46,15 +46,16 @@
             "defines": [
                 "USE_STDPERIPH_DRIVER",
                 "STM32F429_439xx",
-                "USE_FULL_ASSERT",
-                "FREERTOS",
-                "FIRMWARE_VERSIONS=\"V0.0.1\"",
-                "XBDDD=0x00000000",
-                "SYS_CLK=168000000",
-                // "VECT_TAB_SRAM"
-                "USE_USB_OTG_FS"
+                "USE_FULL_ASSERT"
+                ,"USING_RTOS"
+                ,"FIRMWARE_VERSIONS=\"V0.0.1\""
+                ,"XBDDD=0x00000000"
+                ,"SYS_CLK=168000000"
+                // ,"VECT_TAB_SRAM"
+                // ,"USE_USB_OTG_FS"
+                ,"DATA_IN_ExtSDRAM"
             ],
-            "compilerPath": "arm-none-eabi-gcc",
+            "compilerPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin/arm-none-eabi-gcc.exe",
             "cStandard": "gnu11",
             "cppStandard": "gnu++11"
         }
