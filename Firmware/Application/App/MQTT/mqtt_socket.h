@@ -15,14 +15,14 @@
 
 #define MSG_MAX_LEN         500
 #define MSG_TOPIC_LEN       50
-#define KEEPLIVE_TIME       50
+#define KEEPLIVE_TIME       60
 #define MQTT_VERSION        4
 
-#define CLIENT_ID           "FreeRTOS_sample"   // 客户端 ID
-#define USER_NAME           " "                 // 用户名
-#define PASSWORD            " "                 // 秘钥
+#define CLIENT_ID           "CyanLotus"         // 客户端 ID
+#define USER_NAME           "Arachnid"          // 用户名
+#define PASSWORD            "admin"             // 秘钥
 
-#define TOPIC               "FreeRTOS/sample/#" // 订阅的主题
+#define TOPIC               "/mqtt/test"        // 订阅的主题
 #define TEST_MESSAGE        "test_message"      // 测试消息
 
 #define MQTT_TXBUF_SIZE     80

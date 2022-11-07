@@ -25,9 +25,7 @@
 #define __LWIPOPTS_H__
 
 
-#define USING_RTOS                1
-
-#if USING_RTOS
+#ifdef USING_RTOS
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
  * critical regions during buffer allocation, deallocation and memory

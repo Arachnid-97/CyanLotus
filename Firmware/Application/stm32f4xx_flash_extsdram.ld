@@ -43,7 +43,7 @@ MEMORY
 {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 2048K
   RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 192K
-  EXTSDRAM (rw)  : ORIGIN = 0xC0000000, LENGTH = 1024K
+  EXTSDRAM (xrw)  : ORIGIN = 0xC0000000, LENGTH = 8192K
   CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 64K
 }
 
@@ -173,8 +173,8 @@ SECTIONS
     . = ALIGN(4);
   } >RAM
 
-/* external sram data, do not initialize at startup */
-  .ext_sdram(NOLOAD) :
+  /* external sdram data, initialize at startup */
+  .ext_sdram :
   {
     . = ALIGN(4);
     _sext_sdram = .;        /* create a global symbol at ext_sram start */

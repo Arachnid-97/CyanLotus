@@ -61,7 +61,36 @@ extern __IO uint32_t  EthStatus;
 __IO DHCP_State_ TypeDef DHCP_state;
 #endif /* USE_DHCP */
 
-// u8_t *ram_heap = NULL;
+u8_t *ram_heap = NULL;
+
+
+/**
+  * @brief  lwip relocate the heap to external memory
+  * @param  None
+  * @retval None
+  */
+void lwip_comm_mem_malloc(void)
+{
+
+#ifdef LWIP_RAM_HEAP_POINTER
+
+/** All allocated blocks will be MIN_SIZE bytes big, at least!
+ * MIN_SIZE can be overridden to suit your needs. Smaller values save space,
+ * larger values could prevent too small blocks to fragment the RAM too much. */
+#ifndef MIN_SIZE
+#define MIN_SIZE             12
+#endif /* MIN_SIZE */
+/* some alignment macros: we define them here for better source code layout */
+#define MIN_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MIN_SIZE)
+#define SIZEOF_STRUCT_MEM    LWIP_MEM_ALIGN_SIZE(6)
+#define MEM_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MEM_SIZE)
+  ram_heap = pvPortMalloc(MEM_SIZE_ALIGNED + (2*SIZEOF_STRUCT_MEM) + MEM_ALIGNMENT);
+
+  if(ram_heap == NULL)
+    printf("ram_heap malloc fail!\r\n");
+
+#endif /* LWIP_RAM_HEAP_POINTER */
+}
 
 /**
   * @brief  Initializes the lwIP stack
@@ -74,24 +103,8 @@ void LwIP_Init(void)
   ip_addr_t netmask;
   ip_addr_t gw;
 
-#ifndef USE_DHCP
-  // uint8_t iptab[4] = {0};
-  // uint8_t iptxt[20];
-#endif
 
-  // lwip_comm_mem_malloc();
-
-// /** All allocated blocks will be MIN_SIZE bytes big, at least!
-//  * MIN_SIZE can be overridden to suit your needs. Smaller values save space,
-//  * larger values could prevent too small blocks to fragment the RAM too much. */
-// #ifndef MIN_SIZE
-// #define MIN_SIZE             12
-// #endif /* MIN_SIZE */
-// /* some alignment macros: we define them here for better source code layout */
-// #define MIN_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MIN_SIZE)
-// #define SIZEOF_STRUCT_MEM    LWIP_MEM_ALIGN_SIZE(6)
-// #define MEM_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MEM_SIZE)
-//   ram_heap = pvPortMalloc(MEM_SIZE_ALIGNED + (2*SIZEOF_STRUCT_MEM) + MEM_ALIGNMENT);
+  lwip_comm_mem_malloc();
 
 
   /* Create tcp_ip stack thread */

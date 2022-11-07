@@ -112,7 +112,7 @@ typedef u32_t          mem_ptr_t;
 #endif /* __GNUC__ */
 
 
-// #define LWIP_RAM_HEAP_POINTER       ram_heap
+#define LWIP_RAM_HEAP_POINTER       ram_heap
 extern u8_t *LWIP_RAM_HEAP_POINTER;
 
 

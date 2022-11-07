@@ -5,11 +5,10 @@
 #include "stm32f4xx.h"
 
 
-#define SG_NUM_TOTAL		2
-
 typedef enum {
 	SG_MAIN,
-	SG_TCP
+	SG_TCP,
+	SG_NUM_TOTAL
 }SGNum_TypeDef;
 
 typedef struct

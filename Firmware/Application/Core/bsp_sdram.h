@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 
-#define SDRAM_CAPACITY (16*1024*1024)  // 16MB
+#define SDRAM_CAPACITY (8*1024*1024)  // default 16MB, but the external heap data uses 8192KB，see ld file 
 
 
 /* SDRAM 的 bank选择 */  
@@ -13,7 +13,7 @@
 #define FMC_COMMAND_TARGET_BANK   FMC_Command_Target_bank1
 
 /* FMC SDRAM 数据基地址 */
-#define SDRAM_BANK_ADDR     ((uint32_t)0xC0000000)
+#define SDRAM_BANK_ADDR     ((uint32_t)0xC0000000 + 0x800000)
   
 /* FMC SDRAM 数据宽度 */  
 /* #define SDRAM_MEMORY_WIDTH            FMC_SDMemory_Width_8b  */

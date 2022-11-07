@@ -102,7 +102,7 @@ int FreeRTOS_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 		int rc = 0;
 
 		setsockopt(n->my_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
-		rc = transport_getdatanb((void *)n->my_socket, buffer + recvLen, len - recvLen);
+		rc = transport_getdatanb((void *)&n->my_socket, buffer + recvLen, len - recvLen);
 		if (rc > 0)
 			recvLen += rc;
 		else if (rc < 0)
@@ -171,9 +171,6 @@ int NetworkConnect(Network* n, char* addr, int port)
 #endif
 
 	n->my_socket = transport_open(host_ip, port);
-	if(n->my_socket <= 0){
-		transport_close(n->my_socket);
-	}
 
 	return n->my_socket;
 }

@@ -169,6 +169,7 @@ int transport_open(char* addr, int port)
     }
 #else
     rc = 0;
+    *sock = -1;
 	memset(&address,0,sizeof(address));
 	address.sin_len = sizeof(address);
 	address.sin_family = AF_INET;
@@ -194,9 +195,13 @@ int transport_open(char* addr, int port)
             else
                 rc = connect(*sock, (struct sockaddr*)&address6, sizeof(address6));
     #endif
+            if(rc != 0)
+                close(*sock);
         }
+        else
+            rc = -1;
     }
-    if (mysock == INVALID_SOCKET)
+    if ((mysock == INVALID_SOCKET) || (rc != 0))
         return rc;
 
     tv.tv_sec = 1;  /* 1 second Timeout */

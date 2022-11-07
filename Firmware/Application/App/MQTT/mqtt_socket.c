@@ -3,6 +3,8 @@
 #include "MQTTFreeRTOS.h"
 #include "MQTTClient.h"
 
+#include "netconf.h"
+
 #include "lwip/tcp.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
@@ -51,25 +53,29 @@ void MQTT_Link(MQTTClient *client)
     MQTTPacket_connectData connectData = MQTTPacket_connectData_initializer;
 	int rc = 0;
 
+    connectData.clientID.cstring = CLIENT_ID;              //随机
+    connectData.username.cstring = USER_NAME;              //用户名
+    connectData.password.cstring = PASSWORD;               //秘钥
+    connectData.MQTTVersion = MQTT_VERSION;                //3表示3.1版本，4表示3.11版本
+    connectData.keepAliveInterval = KEEPLIVE_TIME;         //保持活跃
+    connectData.cleansession = 1;
+
     while(1)
     {
         do
         {
-            rc = NetworkConnect(client->ipstack, MQTT_HOST_NAME, MQTT_HOST_PORT);
+            if (!netif_is_link_up(&xnetif))
+            { /* waiting for link up */
+                rc = NetworkConnect(client->ipstack, MQTT_HOST_NAME, MQTT_HOST_PORT);
+            }
             vTaskDelay(3000 / portTICK_RATE_MS);
-        } while (rc <= 0);
-
-        connectData.clientID.cstring = CLIENT_ID;              // 随机
-        connectData.username.cstring = USER_NAME;              // 用户名
-        connectData.password.cstring = PASSWORD;               // 秘钥
-        connectData.MQTTVersion = MQTT_VERSION;                // 3表示 3.1版本，4表示 3.11版本
-        connectData.keepAliveInterval = KEEPLIVE_TIME;         // 保持活跃
-        connectData.cleansession = 1;
+        } while (rc < 0);
 
         rc = MQTTConnect(client, &connectData);
         if(rc != 0){
             client->ipstack->disconnect(client->ipstack);
             MQTT_PRINTF("Return code from MQTT connect is %d\n", rc);
+            vTaskDelay(1000 / portTICK_RATE_MS);
             continue;
         }
         else
@@ -97,6 +103,8 @@ int MQTT_Push(MQTTClient *client)
 {
     char payload[30];
     int rc = -1;
+
+    strcpy(payload, TEST_MESSAGE);
 
     rc = publishData(client, TOPIC, payload);
 
@@ -151,7 +159,7 @@ void vMQTT_Task(void *pvParameters)
 
 #if defined(MQTT_TASK)
     int rc;
-    if ((rc = MQTTStartTask(&client)) != pdPASS)
+    if ((rc = MQTTStartTask(&MQTT_client)) != pdPASS)
         MQTT_PRINTF("Return code from start tasks is %d\n", rc);
 #endif
 
@@ -163,7 +171,8 @@ void vMQTT_Task(void *pvParameters)
 			MQTT_PRINTF("Return code from yield is %d\n", ret);
 #endif
 
-        if((ret = MQTT_Push(&MQTT_client)) > 0)
+        vTaskDelay(3000/portTICK_RATE_MS);
+        if((ret = MQTT_Push(&MQTT_client)) == 0)
             continue;
 
         MQTT_UnLink(&MQTT_client);

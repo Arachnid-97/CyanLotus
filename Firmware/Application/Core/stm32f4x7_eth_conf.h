@@ -90,7 +90,7 @@
 
 /*******************  PHY Extended Registers section : ************************/
 /* Uncomment the line below if you want to used other external PHY */
-// #define DP83848
+#define DP83848
 
 /* These values are relatives to DP83848 PHY and change from PHY to another,
    so the user have to update this value depending on the used external PHY */   
