@@ -42,6 +42,9 @@ BASE_ADDRESS = 0x08000000
 # Enable RTOS
 USING_RTOS = 1
 
+# Wrappers required to use newlib malloc-family within FreeRTOS.
+USING_FREERTOS_HELPERS = 1
+
 # GDB debug TCL server port.
 TCL_PORT ?= 
 
@@ -68,7 +71,7 @@ endif
 
 # optimization:
 # option O0/O1/O2/O3/Og/Os.
-OPT = -Og
+OPT = -O0
 
 
 #######################################
@@ -109,18 +112,25 @@ $(SUBDIRS)/SDCard/user_sdcard.c \
 $(SUBDIRS)/Fatfs/sd_diskio.c \
 $(SUBDIRS)/Fatfs/user_fatfs.c \
 $(wildcard $(SUBDIRS)/CANOpen/*.c) \
-$(wildcard $(SUBDIRS)/MQTT/*.c)
+$(wildcard $(SUBDIRS)/MQTT/*.c) \
+$(SUBDIRS)/W25Qxx/w25qxx.c \
+$(SUBDIRS)/AT24Cxx/at24cxx.c \
+$(SUBDIRS)/AT24Cxx/ee_simulate.c
 
 # middleware source.
+ifeq ($(USING_RTOS), 1)
+MIDDLEWARE_SRC += $(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/*.c)
+ifeq ($(USING_FREERTOS_HELPERS), 0)
 MIDDLEWARE_SRC +=  \
-$(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/*.c) \
 $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
 $(MIDDLEWARE_DIR)/FreeRTOS/FreeRTOS/Source/portable/MemMang/heap_4.c
-
+else
 # Wrappers required to use newlib malloc-family within FreeRTOS.
 MIDDLEWARE_SRC +=  \
-# $(MIDDLEWARE_DIR)/FreeRTOS_Helpers/heap_useNewlib_ST.c \
-# $(MIDDLEWARE_DIR)/FreeRTOS_Helpers/port_DRN.c
+$(MIDDLEWARE_DIR)/FreeRTOS_Helpers/heap_useNewlib_ST.c \
+$(MIDDLEWARE_DIR)/FreeRTOS_Helpers/port_DRN.c
+endif
+endif
 
 MIDDLEWARE_SRC +=  \
 $(wildcard $(MIDDLEWARE_DIR)/lwip-2.0.3/src/api/*.c) \
@@ -175,7 +185,9 @@ USER_INC =  \
 -I$(SUBDIRS)/Fatfs \
 -I$(SUBDIRS)/CANOpen \
 -I$(SUBDIRS)/MQTT \
--I$(SUBDIRS)/USB
+-I$(SUBDIRS)/USB \
+-I$(SUBDIRS)/W25Qxx \
+-I$(SUBDIRS)/AT24Cxx
 
 # middleware includes.
 MIDDLEWARE_INC +=  \
@@ -215,7 +227,9 @@ $(PATHS_BASE)/Core/Src/bsp_clock.c \
 $(PATHS_BASE)/Core/Src/bsp.c \
 $(PATHS_BASE)/Core/Src/stm32f4x7_eth_bsp.c \
 $(PATHS_BASE)/Core/Src/bsp_can.c \
-$(PATHS_BASE)/Core/bsp_sdram.c
+$(PATHS_BASE)/Core/bsp_sdram.c \
+$(PATHS_BASE)/Core/bsp_spi.c \
+$(PATHS_BASE)/Core/bsp_iic.c
 
 # Driver library.
 C_SOURCES +=  \
@@ -229,7 +243,9 @@ $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_dma.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_exti.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_sdio.c \
 $(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_can.c \
-$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_fmc.c
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_fmc.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_spi.c \
+$(PATHS_BASE)/$(Drivers_Src)/stm32f4xx_i2c.c
 
 # ETH library.
 C_SOURCES +=  \

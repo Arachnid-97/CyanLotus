@@ -457,12 +457,14 @@ void W25Qxx_Config(void)
 #if USE_SIMULATE_SPI
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	W25Q_CS_APBxClock_FUN(W25Q_CS_CLK, ENABLE);
+	W25Q_CS_Clock_FUN(W25Q_CS_CLK, ENABLE);
 
 	/* Confugure CS pin as Output Push Pull */
 	GPIO_InitStructure.GPIO_Pin = W25Q_CS_PINS;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Fast_Speed;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(W25Q_CS_PORT, &GPIO_InitStructure);
 
 	/* Smiulate IO Config */
@@ -492,14 +494,14 @@ void W25Qxx_Config(void)
 	/* Confugure CS pin as Output Push Pull */
 	GPIO_InitStructure.GPIO_Pin = W25Q_CS_PINS;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Fast_Speed;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(W25Q_CS_PORT, &GPIO_InitStructure);
 
 	/* Confugure SCK/MOSI/MISO pins to Alternate Function */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Fast_Speed;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
 
@@ -555,7 +557,7 @@ void W25Qxx_Init(void)
 #if (_W25Q_DEBUG)
 	FlashID = W25Qxx_Read_JEDECID();
 	W25Q_DEBUG_PRINTF("FlashID is 0x%X,Manufacturer Device ID is 0x%X\r\n",
-					  FlashID, W25Qxx_Read_DeviceID());
+					  (unsigned int)FlashID, W25Qxx_Read_DeviceID());
 	if (FlashID != JEDEC_ID)
 	{
 		/* 读取错误处理 */
@@ -567,7 +569,7 @@ void W25Qxx_Init(void)
 		W25Q_DEBUG_PRINTF("SPI read-write succeed\n");
 
 		// uint8_t Tx_buff[] = "FLASH read-write test\r\n";
-		// uint8_t Rx_buff[] = "FLASH read-write test\r\n";
+		// uint8_t Rx_buff[50] = {0};
 
 		// W25Qxx_Sector_Erase(0x0100);
 		// W25Qxx_Write_Flash(Tx_buff, 0x0100, (sizeof(Tx_buff) / sizeof(*(Tx_buff))));

@@ -361,21 +361,27 @@ void Simulate_SPI_Config(void)
 	SL_SPI_MOSI_APBxClock_FUN(SL_SPI_MOSI_CLK, ENABLE);
 	SL_SPI_MISO_APBxClock_FUN(SL_SPI_MISO_CLK, ENABLE);
 	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Fast_Speed;
 
 	/* SCK */
 	GPIO_InitStructure.GPIO_Pin = SL_SPI_SCK_PINS;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(SL_SPI_SCK_PORT, &GPIO_InitStructure);
 	
 	/* MISO */
 	GPIO_InitStructure.GPIO_Pin = SL_SPI_MISO_PINS;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(SL_SPI_MISO_PORT, &GPIO_InitStructure);
 	
 	/* MOSI */
 	GPIO_InitStructure.GPIO_Pin = SL_SPI_MOSI_PINS;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 	GPIO_Init(SL_SPI_MOSI_PORT, &GPIO_InitStructure);
 }
 

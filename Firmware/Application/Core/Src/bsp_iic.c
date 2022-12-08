@@ -215,16 +215,17 @@ void Simulate_IIC_Config(void)
 	SL_IIC_SCL_APBxClock_FUN(SL_IIC_SCL_CLK, ENABLE);
 	SL_IIC_SDA_APBxClock_FUN(SL_IIC_SDA_CLK, ENABLE);
 	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	
+	GPIO_InitStructure.GPIO_Speed = GPIO_Fast_Speed;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+
 	/* SCL */
 	GPIO_InitStructure.GPIO_Pin = SL_IIC_SCL_PINS;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
 	GPIO_Init(SL_IIC_SCL_PORT, &GPIO_InitStructure);
 	
 	/* SDA */
 	GPIO_InitStructure.GPIO_Pin = SL_IIC_SDA_PINS;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
 	GPIO_Init(SL_IIC_SDA_PORT, &GPIO_InitStructure);
 }
 

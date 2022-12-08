@@ -22,6 +22,28 @@
 #endif /* LOW */
 
 
+/* The M24C08W contains 4 blocks (128byte each) with the adresses below: E2 = 0 
+   EEPROM Addresses defines */
+#define EEPROM_BLOCK0_ADDRESS       0xA0 /* E2 = 0 */
+// #define EEPROM_BLOCK1_ADDRESS       0xA2 /* E2 = 0 */
+// #define EEPROM_BLOCK2_ADDRESS       0xA4 /* E2 = 0 */
+// #define EEPROM_BLOCK3_ADDRESS       0xA6 /* E2 = 0 */
+
+/* AT24C设备内存总容量 x8bit */
+#define AT24C_MEMORY_CAPACITY       512
+
+/* AT24C01/02每页有 8个字节 
+ * AT24C04/08/16每页有 16个字节 */
+#define AT24C_PAGE_SIZE             16
+
+/* 使用 16位数据则定义该宏,否者默认 8位数据 */
+// #define AT24CXX_16BIT_ADDR
+
+/* 使用 10位字地址则定义该宏,否者默认(标准) 7位字地址 */
+// #define I2C_10BITS_ADDRESS
+
+/* --------------------------------------------------------------------- */
+
 /* I2C EEPROM Interface */
 #define EE_I2C_DMA                      DMA1   
 #define EE_I2C_DMA_CHANNEL              DMA_Channel_7
@@ -53,13 +75,6 @@
 #define AT24C_WRITE                 0x00
 
 
-/* The M24C08W contains 4 blocks (128byte each) with the adresses below: E2 = 0 
-   EEPROM Addresses defines */
-#define EEPROM_BLOCK0_ADDRESS       0xA0 /* E2 = 0 */ 
-// #define EEPROM_BLOCK1_ADDRESS       0xA2 /* E2 = 0 */  
-// #define EEPROM_BLOCK2_ADDRESS       0xA4 /* E2 = 0 */
-// #define EEPROM_BLOCK3_ADDRESS       0xA6 /* E2 = 0 */
- 
 /* AT24Cxx IICx */
 #define AT24C_I2Cx              I2C2
 #define AT24C_I2C_CLK           RCC_APB1Periph_I2C2
@@ -82,12 +97,6 @@
 /* 如果 IO的桥接线一样就直接用下面的宏，否则分开配置 */
 #define AT24C_IO_CLOCK_FUN(x, y)    RCC_AHB1PeriphClockCmd(x, y)
 
-
-/* AT24C01/02每页有8个字节 */
-#define AT24C_PAGE_SIZE           8
-
-/* AT24C04/08A/16A每页有16个字节 */
-// #define AT24C_PAGE_SIZE           16
 
 void EE_DMA_TxWait(void);
 void EE_DMA_RxWait(void);

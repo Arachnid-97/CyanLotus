@@ -34,6 +34,9 @@
 #include "canopen_app.h"
 #include "mqtt_socket.h"
 #include "bsp_sdram.h"
+#include "./W25Qxx/w25qxx.h"
+#include "./AT24Cxx/at24cxx.h"
+
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -161,12 +164,15 @@ static void prvUser_Task( void *pvParameters )
     // SD_test();
     // FF_Test();
 
+    // W25Qxx_Init();
+    AT24Cxx_Init();
+
     // uint8_t temp[] = "hello world!";
 
     // VSPD_SendByte(COM1, 0xa5);
     // VSPD_SendString(COM1, temp, sizeof(temp));
 
-    SDRAM_Test();
+    // SDRAM_Test();
 
     while (1)
     {

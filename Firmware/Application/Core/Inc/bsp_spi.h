@@ -21,20 +21,20 @@
 #define LOW                 0
 #endif /* LOW */
 
-#define SL_SPI_SCK_APBxClock_FUN(x, y)	RCC_APB2PeriphClockCmd(x, y)
-#define SL_SPI_SCK_CLK		RCC_APB2Periph_GPIOA
-#define SL_SPI_SCK_PORT		GPIOA
-#define SL_SPI_SCK_PINS		GPIO_Pin_5
+#define SL_SPI_SCK_APBxClock_FUN(x, y)	RCC_AHB1PeriphClockCmd(x, y)
+#define SL_SPI_SCK_CLK		RCC_AHB1Periph_GPIOF
+#define SL_SPI_SCK_PORT		GPIOF
+#define SL_SPI_SCK_PINS		GPIO_Pin_7
 
-#define SL_SPI_MOSI_APBxClock_FUN(x, y)	RCC_APB2PeriphClockCmd(x, y)
-#define SL_SPI_MOSI_CLK		RCC_APB2Periph_GPIOA
-#define SL_SPI_MOSI_PORT	GPIOA
-#define SL_SPI_MOSI_PINS	GPIO_Pin_7
+#define SL_SPI_MOSI_APBxClock_FUN(x, y)	RCC_AHB1PeriphClockCmd(x, y)
+#define SL_SPI_MOSI_CLK		RCC_AHB1Periph_GPIOF
+#define SL_SPI_MOSI_PORT	GPIOF
+#define SL_SPI_MOSI_PINS	GPIO_Pin_9
 
-#define SL_SPI_MISO_APBxClock_FUN(x, y)	RCC_APB2PeriphClockCmd(x, y)
-#define SL_SPI_MISO_CLK		RCC_APB2Periph_GPIOA
-#define SL_SPI_MISO_PORT	GPIOA
-#define SL_SPI_MISO_PINS	GPIO_Pin_6
+#define SL_SPI_MISO_APBxClock_FUN(x, y)	RCC_AHB1PeriphClockCmd(x, y)
+#define SL_SPI_MISO_CLK		RCC_AHB1Periph_GPIOF
+#define SL_SPI_MISO_PORT	GPIOF
+#define SL_SPI_MISO_PINS	GPIO_Pin_8
 
 #define SPI_SCK(x)			GPIO_WriteBit(SL_SPI_SCK_PORT, SL_SPI_SCK_PINS, (BitAction)x)
 #define SPI_MOSI(x)			GPIO_WriteBit(SL_SPI_MOSI_PORT, SL_SPI_MOSI_PINS, (BitAction)x)

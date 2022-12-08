@@ -5,8 +5,8 @@
 #include "stm32f4xx.h"
 #include <stdio.h>
 
-// #define DEBUG_PRINT_ON_UART
-#define DEBUG_PRINT_ON_SWO
+#define DEBUG_PRINT_ON_UART
+// #define DEBUG_PRINT_ON_SWO
 
 #define DEBUG_USART                 USART1
 #define DEBUG_USART_CLK             RCC_APB2Periph_USART1

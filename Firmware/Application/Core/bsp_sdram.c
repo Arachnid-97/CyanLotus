@@ -338,19 +338,19 @@ void SDRAM_Init(void)
 
   /* Timing configuration for 84 Mhz of SD clock frequency (168Mhz/2) */
   /* SDRAM时序结构体，根据 SDRAM参数表配置------------------------*/
-  /* TMRD: 2 Clock cycles */
+  /* TMRD: min=14ns (2x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_LoadToActiveDelay    = 2;      
-  /* TXSR: min=70ns (7x11.11ns) */
+  /* TXSR: min=70ns (6x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_ExitSelfRefreshDelay = 6;
-  /* TRAS: min=42ns (4x11.11ns) max=120k (ns) */
+  /* TRAS: min=42ns max=100Kns (4x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_SelfRefreshTime      = 4;
-  /* TRC:  min=70 (7x11.11ns) */        
+  /* TRC:  min=60ns (6x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_RowCycleDelay        = 6;         
-  /* TWR:  min=1+ 7ns (1+1x11.11ns) */
+  /* TWR:  min=30ns (2x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_WriteRecoveryTime    = 2;      
-  /* TRP:  15ns => 2x11.11ns */
+  /* TRP:  min=15ns (2x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_RPDelay              = 2;                
-  /* TRCD: 15ns => 2x11.11ns */
+  /* TRCD: min=315ns (2x11.90ns) */
   FMC_SDRAMTimingInitStructure.FMC_RCDDelay             = 2;
 
   /* Step 2 ----------------------------------------------------*/

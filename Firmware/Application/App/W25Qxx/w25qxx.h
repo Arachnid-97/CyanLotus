@@ -59,10 +59,10 @@
 #define W25Q_CS(x)              GPIO_WriteBit(W25Q_CS_PORT, W25Q_CS_PINS, (BitAction)x)
 
 
-//#define JEDEC_ID              0xEF3015 //W25X16
-//#define JEDEC_ID              0xEF4015 //W25Q16
-//#define JEDEC_ID              0xEF4018 //W25Q128
-#define JEDEC_ID              0xEF4017 //W25Q64
+// #define JEDEC_ID              0xEF3015 //W25X16
+// #define JEDEC_ID              0xEF4015 //W25Q16
+#define JEDEC_ID              0xEF4018 //W25Q128
+// #define JEDEC_ID              0xEF4017 //W25Q64
 
 #define W25Q_DUMMY_BYTE         0xFF // 可以为任意字节
 

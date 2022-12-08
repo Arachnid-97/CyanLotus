@@ -16,8 +16,8 @@
 #define SDRAM_BANK_ADDR     ((uint32_t)0xC0000000 + 0x800000)
   
 /* FMC SDRAM Êý¾Ý¿í¶È */  
-/* #define SDRAM_MEMORY_WIDTH            FMC_SDMemory_Width_8b  */
-#define SDRAM_MEMORY_WIDTH            FMC_SDMemory_Width_16b
+#define SDRAM_MEMORY_WIDTH            FMC_SDMemory_Width_8b
+/* #define SDRAM_MEMORY_WIDTH            FMC_SDMemory_Width_16b */
 /* #define SDRAM_MEMORY_WIDTH               FMC_SDMemory_Width_32b */ 
 
 /* FMC SDRAM CAS Latency */  

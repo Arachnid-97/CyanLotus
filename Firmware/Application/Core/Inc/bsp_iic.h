@@ -21,15 +21,15 @@
 #define LOW                 0
 #endif /* LOW */
 
-#define SL_IIC_SCL_APBxClock_FUN(x, y)	RCC_APB2PeriphClockCmd(x, y)
-#define SL_IIC_SCL_CLK		RCC_APB2Periph_GPIOB
+#define SL_IIC_SCL_APBxClock_FUN(x, y)	RCC_AHB1PeriphClockCmd(x, y)
+#define SL_IIC_SCL_CLK		RCC_AHB1Periph_GPIOB
 #define SL_IIC_SCL_PORT		GPIOB
-#define SL_IIC_SCL_PINS		GPIO_Pin_6
+#define SL_IIC_SCL_PINS		GPIO_Pin_10
 
-#define SL_IIC_SDA_APBxClock_FUN(x, y)	RCC_APB2PeriphClockCmd(x, y)
-#define SL_IIC_SDA_CLK		RCC_APB2Periph_GPIOB
+#define SL_IIC_SDA_APBxClock_FUN(x, y)	RCC_AHB1PeriphClockCmd(x, y)
+#define SL_IIC_SDA_CLK		RCC_AHB1Periph_GPIOB
 #define SL_IIC_SDA_PORT		GPIOB
-#define SL_IIC_SDA_PINS		GPIO_Pin_7
+#define SL_IIC_SDA_PINS		GPIO_Pin_11
 
 #define IIC_SCL(x)			GPIO_WriteBit(SL_IIC_SCL_PORT, SL_IIC_SCL_PINS, (BitAction)x)
 #define IIC_SDA(x)			GPIO_WriteBit(SL_IIC_SDA_PORT, SL_IIC_SDA_PINS, (BitAction)x)
