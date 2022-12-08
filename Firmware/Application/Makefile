@@ -115,7 +115,10 @@ $(wildcard $(SUBDIRS)/CANOpen/*.c) \
 $(wildcard $(SUBDIRS)/MQTT/*.c) \
 $(SUBDIRS)/W25Qxx/w25qxx.c \
 $(SUBDIRS)/AT24Cxx/at24cxx.c \
-$(SUBDIRS)/AT24Cxx/ee_simulate.c
+$(SUBDIRS)/AT24Cxx/ee_simulate.c \
+$(SUBDIRS)/W5500/w5500.c \
+$(SUBDIRS)/W5500/w5500_drv.c \
+$(SUBDIRS)/W5500/w5500_mode.c
 
 # middleware source.
 ifeq ($(USING_RTOS), 1)
@@ -187,7 +190,8 @@ USER_INC =  \
 -I$(SUBDIRS)/MQTT \
 -I$(SUBDIRS)/USB \
 -I$(SUBDIRS)/W25Qxx \
--I$(SUBDIRS)/AT24Cxx
+-I$(SUBDIRS)/AT24Cxx \
+-I$(SUBDIRS)/W5500
 
 # middleware includes.
 MIDDLEWARE_INC +=  \

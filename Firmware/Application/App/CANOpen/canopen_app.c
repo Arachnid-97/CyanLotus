@@ -26,7 +26,7 @@ void CANOpen_App_Init(void)
     xReturn = xTaskCreate(CANOpen_App_Task, "CANOpen_App_Task", CANOPEN_STACK_SIZE, NULL, CANOPEN_TASK_PRIORITY, NULL);
     if (pdPASS != xReturn)
     {
-        return; //创建接收任务失败
+        return; //创建任务失败
     }
 }
 

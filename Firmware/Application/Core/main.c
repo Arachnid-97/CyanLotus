@@ -36,6 +36,7 @@
 #include "bsp_sdram.h"
 #include "./W25Qxx/w25qxx.h"
 #include "./AT24Cxx/at24cxx.h"
+#include "w5500_drv.h"
 
 
 /* Scheduler includes. */
@@ -165,7 +166,9 @@ static void prvUser_Task( void *pvParameters )
     // FF_Test();
 
     // W25Qxx_Init();
-    AT24Cxx_Init();
+    // AT24Cxx_Init();
+
+    W5500_Init();
 
     // uint8_t temp[] = "hello world!";
 

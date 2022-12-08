@@ -41,7 +41,8 @@
                 "${workspaceFolder}/Drivers/STM32_USB_Device_Library/Class/msc/inc",
                 "${workspaceFolder}/Drivers/STM32_USB_HOST_Library/Core/inc",
                 "${workspaceFolder}/Drivers/STM32_USB_HOST_Library/Class/MSC/inc",
-                "${workspaceFolder}/App/USB"
+                "${workspaceFolder}/App/USB",
+                "${workspaceFolder}/App/W5500"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",

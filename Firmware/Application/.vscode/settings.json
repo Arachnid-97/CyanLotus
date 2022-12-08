@@ -47,7 +47,9 @@
         "usb_conf.h": "c",
         "usbd_msc_mem.h": "c",
         "usbd_def.h": "c",
-        "usb_bsp.h": "c"
+        "usb_bsp.h": "c",
+        "w5500_mode.h": "c",
+        "w5500.h": "c"
     },
     "search.exclude": {
         "**/.vscode": true,
