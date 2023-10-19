@@ -17,11 +17,13 @@
       "problemMatcher": []
     },
     {
+      "dependsOn": "Clean",
       "label": "Build",
       "type": "shell",
       "command": "make",
       "args": [
-        "-j6"
+        "-j6",
+        "EXT_SDRAM=1"
       ],
       "problemMatcher": [
         "$gcc"
@@ -40,6 +42,7 @@
         "debugging",
         "-j8",
         "DEBUG=1",
+        "EXT_SDRAM=1",
         // "SRAM_START=1" // SRAM debug
       ],
       "problemMatcher": [
@@ -52,7 +55,8 @@
       "command": "make",
       "args": [
         "clean",
-      ]
+      ],
+      "problemMatcher": []
     }
   ]
 }

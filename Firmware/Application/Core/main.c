@@ -24,6 +24,7 @@
 #include "stm32f4xx.h"
 
 /* Private app includes. */
+#include "bsp.h"
 #include "bsp_clock.h"
 #include "bsp_uart.h"
 #include "sys_guard.h"
@@ -37,6 +38,7 @@
 #include "./W25Qxx/w25qxx.h"
 #include "./AT24Cxx/at24cxx.h"
 #include "w5500_drv.h"
+#include "MPU6050.h"
 
 
 /* Scheduler includes. */
@@ -146,9 +148,9 @@ int main( void )
 *************************************************/
 static void prvUser_Task( void *pvParameters )
 {
-    cJSON_mem.malloc_fn = pvPortMalloc;
-    cJSON_mem.free_fn = vPortFree;
-    cJSON_InitHooks(&cJSON_mem);
+    // cJSON_mem.malloc_fn = pvPortMalloc;
+    // cJSON_mem.free_fn = vPortFree;
+    // cJSON_InitHooks(&cJSON_mem);
 
     /* User-defined private tasks */
     // xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
@@ -168,7 +170,10 @@ static void prvUser_Task( void *pvParameters )
     // W25Qxx_Init();
     // AT24Cxx_Init();
 
-    W5500_Init();
+    // W5500_Init();
+
+    MPU6050_Init();
+    MPU6050_Test_Start();
 
     // uint8_t temp[] = "hello world!";
 
@@ -180,8 +185,9 @@ static void prvUser_Task( void *pvParameters )
     while (1)
     {
         // (void)eMBPoll();
+        MPU6050_Test_Poll();
 
-        vTaskDelay(10 / portTICK_RATE_MS);
+        vTaskDelay(1000 / portTICK_RATE_MS);
     }
     
     // printf("prvUser_Task delete.\r\n\n");
@@ -213,7 +219,8 @@ static void prvSetupHardware( void )
     vSetupUSART();
     // vSetupTimer();
     // vSetupParPort();
-                                               
+    Basic_Peripheral_Config();
+
 
 	printf("\r\n ****************************************************\r\n");
 	printf("       ___                    __          _     __\r\n");

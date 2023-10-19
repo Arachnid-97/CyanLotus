@@ -20,19 +20,19 @@
 TARGET = Application
 
 # Version info.
-VERSIONS ?= \"V0.0.1\"
+VERSIONS = \"V0.0.1\"
 
 # System clock frequency.
-SYSCLK ?= 168MHz
+SYSCLK = 168MHz
 
 # High speed external clock frequency.
-HSE_CLOCK ?= 8MHz
+HSE_CLOCK = 16MHz
 
 # Memory size.
-MEM_SIZE_FLASH ?= 2048K
-MEM_SIZE_RAM ?= 192K
+MEM_SIZE_FLASH = 2048K
+MEM_SIZE_RAM = 192K
 
-MEM_SIZE_CCM ?= 64K
+MEM_SIZE_CCM = 64K
 
 # Offset Address.
 OFFSET_ADDRESS ?= 0x00000000
@@ -120,7 +120,8 @@ $(SUBDIRS)/AT24Cxx/at24cxx.c \
 $(SUBDIRS)/AT24Cxx/ee_simulate.c \
 $(SUBDIRS)/W5500/w5500.c \
 $(SUBDIRS)/W5500/w5500_drv.c \
-$(SUBDIRS)/W5500/w5500_mode.c
+$(SUBDIRS)/W5500/w5500_mode.c \
+$(SUBDIRS)/IMU/mpu6050.c
 
 # middleware source.
 ifeq ($(USING_RTOS), 1)
@@ -193,7 +194,8 @@ USER_INC =  \
 -I$(SUBDIRS)/USB \
 -I$(SUBDIRS)/W25Qxx \
 -I$(SUBDIRS)/AT24Cxx \
--I$(SUBDIRS)/W5500
+-I$(SUBDIRS)/W5500 \
+-I$(SUBDIRS)/IMU
 
 # middleware includes.
 MIDDLEWARE_INC +=  \
@@ -518,7 +520,7 @@ endef
 
 # Make sure that the submodules are up to date.
 # Check if there are submodules files in the middleware directories, if not warn the user.
-ifeq ($(wildcard $(MIDDLEWARE_DIR)/cJSON/*),)
+ifeq ($(wildcard $(MIDDLEWARE_DIR)/FreeRTOS/*),)
   $(error $n                                                                   \
     The submodules does not seem to be present, consider fetching them by:$n   \
       $$ git submodule init$n                                                  \

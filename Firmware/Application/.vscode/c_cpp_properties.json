@@ -42,7 +42,8 @@
                 "${workspaceFolder}/Drivers/STM32_USB_HOST_Library/Core/inc",
                 "${workspaceFolder}/Drivers/STM32_USB_HOST_Library/Class/MSC/inc",
                 "${workspaceFolder}/App/USB",
-                "${workspaceFolder}/App/W5500"
+                "${workspaceFolder}/App/W5500",
+                "${workspaceFolder}/App/IMU"
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",
@@ -52,6 +53,7 @@
                 ,"FIRMWARE_VERSIONS=\"V0.0.1\""
                 ,"XBDDD=0x00000000"
                 ,"SYS_CLK=168000000"
+                ,"HSE_CLOCK=16000000"
                 // ,"VECT_TAB_SRAM"
                 // ,"USE_USB_OTG_FS"
                 ,"DATA_IN_ExtSDRAM"
