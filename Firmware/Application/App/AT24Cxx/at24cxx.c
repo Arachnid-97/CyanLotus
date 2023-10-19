@@ -15,7 +15,7 @@
 #define IIC_DMA_ENABLE			1
 
 /* EEPROM∂¡–¥≤‚ ‘∫Í */
-#define _EE_TEST				1
+#define _EE_TEST				0
 #define USER_TEST_ADDR			68
 
 

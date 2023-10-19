@@ -98,6 +98,7 @@ hard_fault_handler_c(unsigned int * hardfault_args)
     printf ("R3 = %x\n", stacked_r3);
     printf ("R12 = %x\n", stacked_r12);
     printf ("LR = %x\n", stacked_lr);
+    printf ("pre_LR = %x\n", stacked_lr - 4);
     printf ("PC = %x\n", stacked_pc);
     printf ("PSR = %x\n", stacked_psr);
 #ifndef CW

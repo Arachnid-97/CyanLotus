@@ -62,10 +62,12 @@ OFFSET_ADDRESS := $(shell echo $(OFFSET_ADDRESS) | tr a-z A-Z)
 # debug build?
 DEBUG ?= 0
 
-EXT_SDRAM ?= 1
+EXT_SDRAM ?= 0
 
 # SRAM debug start.
 ifneq ($(EXT_SDRAM), 1)
+SRAM_START = 0
+else
 SRAM_START ?= 0
 endif
 
@@ -231,9 +233,9 @@ $(PATHS_BASE)/Core/Src/bsp_clock.c \
 $(PATHS_BASE)/Core/Src/bsp.c \
 $(PATHS_BASE)/Core/Src/stm32f4x7_eth_bsp.c \
 $(PATHS_BASE)/Core/Src/bsp_can.c \
-$(PATHS_BASE)/Core/bsp_sdram.c \
-$(PATHS_BASE)/Core/bsp_spi.c \
-$(PATHS_BASE)/Core/bsp_iic.c
+$(PATHS_BASE)/Core/Src/bsp_sdram.c \
+$(PATHS_BASE)/Core/Src/bsp_spi.c \
+$(PATHS_BASE)/Core/Src/bsp_iic.c
 
 # Driver library.
 C_SOURCES +=  \
@@ -455,7 +457,7 @@ endif
 # newlib library.
 CLIBS = -specs=nano.specs
 # floating point support.
-# CLIBS += -u _printf_float
+CLIBS += -u _printf_float
 # CLIBS += -u _scanf_float
 
 # libraries.

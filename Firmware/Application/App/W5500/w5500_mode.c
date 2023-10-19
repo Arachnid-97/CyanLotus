@@ -28,8 +28,14 @@ uint16_t RSIZE[MAX_SOCK_NUM] = {0,0,0,0,0,0,0,0};     // Max Rx buffer
 *************************************************/
 void W5500_TCP_Server(void)
 {
+    static uint8_t first_init = 1;
     uint16_t len = 0;
     uint8_t buf[2048] = {0};
+
+    if(first_init){
+        Socket_Colse(SOCK_TCP_S_PORT);
+        first_init = 0;
+    }
 
 	switch(Get_Sn_SR(SOCK_TCP_S_PORT))										/*获取socket的状态*/
 	{
@@ -74,8 +80,14 @@ void W5500_TCP_Server(void)
 *************************************************/
 void W5500_TCP_Client(void)
 {
+    static uint8_t first_init = 1;
     uint16_t len = 0;
     uint8_t buf[2048] = {0};
+
+    if(first_init){
+        Socket_Colse(SOCK_TCP_S_PORT);
+        first_init = 0;
+    }
 
 	switch(Get_Sn_SR(SOCK_TCP_C_PORT))								  		/*获取socket的状态*/
 	{
@@ -119,8 +131,14 @@ void W5500_TCP_Client(void)
 *************************************************/
 void W5500_UDP_Deal(void)
 {
+    static uint8_t first_init = 1;
     uint16_t len = 0;
     uint8_t buf[2048] = {0};
+
+    if(first_init){
+        Socket_Colse(SOCK_TCP_S_PORT);
+        first_init = 0;
+    }
 
 	switch(Get_Sn_SR(SOCK_UDP_PORT))                                   /*获取socket的状态*/
 	{
@@ -500,6 +518,7 @@ _Bool Socket_TCP( uint8_t S, uint16_t Port )
 {
     uint16_t temp_port = 8080;
 
+    Socket_Colse(S);
     Set_Sn_MR(S, Sn_MR_TCP);
     if(Port != 0)
     {

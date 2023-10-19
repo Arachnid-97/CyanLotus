@@ -156,10 +156,13 @@ static void ETH_MACDMA_Config(void)
 
   /* Fill ETH_InitStructure parametrs */
   /*------------------------   MAC   -----------------------------------*/
-  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-//  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Disable; 
-//  ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
-//  ETH_InitStructure.ETH_Mode = ETH_Mode_FullDuplex;
+#if 1
+  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable; // Auto Negotiation
+#else
+  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Disable; // Full Duplex and Speed 100M
+  ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
+  ETH_InitStructure.ETH_Mode = ETH_Mode_FullDuplex;
+#endif
 
   ETH_InitStructure.ETH_LoopbackMode = ETH_LoopbackMode_Disable;
   ETH_InitStructure.ETH_RetryTransmission = ETH_RetryTransmission_Disable;
@@ -291,17 +294,11 @@ static void ETH_GPIO_Config(void)
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource5, GPIO_AF_ETH);
                                 
   /* Configure PG11, PG14 and PG13 */
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11 | GPIO_Pin_13 ;//| GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14;
   GPIO_Init(GPIOG, &GPIO_InitStructure);
   GPIO_PinAFConfig(GPIOG, GPIO_PinSource11, GPIO_AF_ETH);
   GPIO_PinAFConfig(GPIOG, GPIO_PinSource13, GPIO_AF_ETH);
-//   GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_ETH);
-
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_ETH);	
-
+  GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_ETH);
 
 #ifdef MII_MODE
   /* Configure PH2, PH3, PH6, PH7 */
