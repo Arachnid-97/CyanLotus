@@ -90,7 +90,7 @@
 
 /*******************  PHY Extended Registers section : ************************/
 /* Uncomment the line below if you want to used other external PHY */
-#define DP83848
+// #define DP83848
 
 /* These values are relatives to DP83848 PHY and change from PHY to another,
    so the user have to update this value depending on the used external PHY */   
@@ -131,8 +131,13 @@
   #define PHY_DUPLEX_STATUS      ((uint16_t)0x0010)   /* PHY Duplex mask */
 
 /* The LAN8720A PHY: Interrupt Register */
-#define PHY_ISFR                ((uint16_t)0x001D)  /*!< PHY Interrupt Source Flag register Offset */
-  #define PHY_ISFR_INT4           ((uint16_t)0x000B)  /*!< PHY Link down inturrupt */
+#define PHY_ISFR               ((uint16_t)0x001D)  /* PHY Interrupt Source Flag register Offset */
+  #define PHY_ISFR_INT4          ((uint16_t)0x000B)  /* PHY Link down inturrupt */
+
+/* The LAN8720A PHY: Interrupt Register */
+#define PHY_IMR                ((uint16_t)0x001E)  /* PHY interrupt control register offset */
+  #define PHY_IMR_INT4           (PHY_ISFR_INT4)  /* PHY link interrupt source enable mask */
+
 
 #endif
    /* Note : Common PHY registers are defined in stm32f4x7_eth.h file */

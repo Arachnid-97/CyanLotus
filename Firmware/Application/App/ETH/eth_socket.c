@@ -12,7 +12,7 @@
 #include "lwip/sys.h"
 
 #include "FreeRTOS.h"
-#include "event_groups.h"
+#include "task.h"
 
 
 TaskHandle_t Server_Task_Handle = NULL;
@@ -22,16 +22,25 @@ TaskHandle_t Client_Task_Handle = NULL;
 static void prvTCPIP_Task(void *pvParameters);
 
 
-static void SysGuard_TCP_Callback(void)
+int TCPIP_Errno(void)
 {
-	/* 软复位前处理 */
-	do{
-		
-		vTaskDelay(2000 / portTICK_RATE_MS);
-	}while(0);
-	
-	
-	NVIC_SystemReset();
+    if(errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN){
+     	// DEBUG_PRINTF("socket continue connect!\r\n");
+        return 0;
+    }
+    else{
+        if(errno == EBUSY){
+            LOG_PRINTF(WARNING, "lwip during peak work!\r\n");
+        }
+        else if(errno == ENETDOWN || errno == ENETUNREACH 
+                || errno == ENETRESET || errno == ECONNABORTED 
+                    || errno == ECONNRESET){
+            LOG_PRINTF(WARNING, "socket connect fault!\r\n");
+        }
+        LOG_PRINTF(ERROR, "socket errno status:%d\r\n", errno);
+    }
+
+    return -1;
 }
 
 void Ethernet_Init(void)
@@ -47,22 +56,17 @@ void Ethernet_Init(void)
 
 static void prvTCPIP_Task( void *pvParameters )
 {
-	// Server_Task_Handle = sys_thread_new("vTCPServer_Task", vTCPServer_Task, NULL, 512, DEFAULT_THREAD_PRIO);
+    // Server_Task_Handle = sys_thread_new("vTCPServer_Task", vTCPServer_Task, NULL, DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
-	// Client_Task_Handle = sys_thread_new("vTCPClient_Task", vTCPClient_Task, NULL, 1408, DEFAULT_THREAD_PRIO);
+    // Client_Task_Handle = sys_thread_new("vTCPClient_Task", vTCPClient_Task, NULL, 2 * DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
-	// sys_thread_new("vTaskUDP", vTaskUDP, NULL, DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
+    // sys_thread_new("vTaskUDP", vUDP_Task, NULL, DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
-	SysGuard_Reg(SG_TCP, "TCP Link Guard", 2, SysGuard_TCP_Callback);
-	SysGuard_Start(SG_TCP);
+	// while(1) {
+	// 	vTaskDelay(1000 / portTICK_RATE_MS);
+	// }
 	
-	while(1){
-		vTaskDelay(1000 / portTICK_RATE_MS);
-        // TCPClient_CallBack();
-
-		/* 线程喂狗 */
-	    SysGuard_Online(SG_TCP);
-	}
-	
-	// vTaskDelete(NULL);
+	vTaskDelete(NULL);
 }
+
+

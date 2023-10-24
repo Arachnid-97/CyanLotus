@@ -148,14 +148,14 @@ int main( void )
 *************************************************/
 static void prvUser_Task( void *pvParameters )
 {
-    // cJSON_mem.malloc_fn = pvPortMalloc;
-    // cJSON_mem.free_fn = vPortFree;
-    // cJSON_InitHooks(&cJSON_mem);
+    cJSON_mem.malloc_fn = pvPortMalloc;
+    cJSON_mem.free_fn = vPortFree;
+    cJSON_InitHooks(&cJSON_mem);
 
     /* User-defined private tasks */
     // xTaskCreate( vSysGuard_Task, "vSysGuard_Task", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, NULL );
 
-    // Ethernet_Init();
+    Ethernet_Init();
     // MQTT_Init();
 
     // Virtual_Serial_Init();
@@ -172,8 +172,8 @@ static void prvUser_Task( void *pvParameters )
 
     // W5500_Init();
 
-    MPU6050_Init();
-    MPU6050_Test_Start();
+    // MPU6050_Init();
+    // MPU6050_Test_Start();
 
     // uint8_t temp[] = "hello world!";
 
@@ -185,7 +185,7 @@ static void prvUser_Task( void *pvParameters )
     while (1)
     {
         // (void)eMBPoll();
-        MPU6050_Test_Poll();
+        // MPU6050_Test_Poll();
 
         vTaskDelay(1000 / portTICK_RATE_MS);
     }

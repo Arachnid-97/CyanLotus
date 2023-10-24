@@ -26,6 +26,11 @@
 
 
 #ifdef USING_RTOS
+/*
+-----------------------------------------------
+---------- Platform specific locking ----------
+-----------------------------------------------
+*/
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
  * critical regions during buffer allocation, deallocation and memory
@@ -47,35 +52,17 @@
  * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
  */
 #define LWIP_NETCONN             1
-
-/*
-   ------------------------------------
-   ---------- Socket options ----------
-   ------------------------------------
-*/
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
 #define LWIP_SOCKET              1
-
-
-/**
- * LWIP_SO_RCVTIMEO==1: Enable receive timeout for sockets/netconns and
- * SO_RCVTIMEO processing.
- */
-#define LWIP_SO_RCVTIMEO         1
-
-/**
- * LWIP_SO_SNDTIMEO==1: Enable send timeout for sockets/netconns and
- * SO_SNDTIMEO processing.
- */
-#define LWIP_SO_SNDTIMEO         1
 
 #else
 /**
  * NO_SYS==1: Bare metal lwIP
  */
 #define NO_SYS                   1
+
 /*
    ----------------------------------------------
    ---------- Sequential layer options ----------
@@ -101,7 +88,7 @@
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
 a lot of data that needs to be copied, this should be set high. */
-#define MEM_SIZE                 (10*1024)
+#define MEM_SIZE                 (50*1024)
 
 /* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
    sends a lot of data out of ROM (or other static memory), this
@@ -115,7 +102,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_TCP_PCB         8
 /* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP
    connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN  8
+#define MEMP_NUM_TCP_PCB_LISTEN  4
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
    segments. */
 #define MEMP_NUM_TCP_SEG         256
@@ -123,6 +110,13 @@ a lot of data that needs to be copied, this should be set high. */
    timeouts. */
 #define MEMP_NUM_SYS_TIMEOUT     8
 
+/* MEMP_NUM_TCPIP_MSG_INPKT: the number of struct tcpip_msg, which are used
+   for incoming packets. (only needed if you use tcpip.c) */
+#define MEMP_NUM_TCPIP_MSG_INPKT 18
+
+/* MEMP_NUM_NETBUF: the number of struct netbufs.
+   (only needed if you use the sequential API, like api_lib.c) */
+#define MEMP_NUM_NETBUF          18
 
 /* ---------- Pbuf options ---------- */
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
@@ -131,6 +125,8 @@ a lot of data that needs to be copied, this should be set high. */
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
 #define PBUF_POOL_BUFSIZE        1520
 
+/* total maximum amount of pbufs waiting to be reassembled. */
+#define IP_REASS_MAX_PBUFS       10
 
 /* ---------- TCP options ---------- */
 #define LWIP_TCP                 1
@@ -160,6 +156,11 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_TMR_INTERVAL         100
 
 
+/* ---------- UDP options ---------- */
+#define LWIP_UDP                 1
+#define UDP_TTL                  255
+
+
 /* ---------- Network Interfaces options ---------- */
 /* Support netif api (in netifapi.c). */
 #define LWIP_NETIF_API           0
@@ -176,10 +177,14 @@ a lot of data that needs to be copied, this should be set high. */
    turning this on does currently not work. */
 #define LWIP_DHCP                1
 
+/* ---------- AUTOIP options ---------- */
+#define LWIP_AUTOIP              0
 
-/* ---------- UDP options ---------- */
-#define LWIP_UDP                 1
-#define UDP_TTL                  255
+/* ---------- IGMP options ---------- */
+#define LWIP_IGMP                0
+
+/* ---------- DNS options ---------- */
+#define LWIP_DNS                 0
 
 
 /* ---------- Statistics options ---------- */
@@ -188,10 +193,6 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* ---------- Errno options ---------- */
 #define LWIP_PROVIDE_ERRNO
-
-
-/* ---------- DNS options ---------- */
-#define LWIP_DNS                 0
 
 
 /*
@@ -251,10 +252,16 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 */
 #define LWIP_DEBUG
 #ifdef LWIP_DEBUG
-// #define API_MSG_DEBUG       LWIP_DBG_ON
-// #define SOCKETS_DEBUG       LWIP_DBG_ON
-// #define TCP_INPUT_DEBUG     LWIP_DBG_ON
-// #define TCP_DEBUG           LWIP_DBG_ON
+// #define API_MSG_DEBUG            LWIP_DBG_ON
+// #define API_LIB_DEBUG            LWIP_DBG_ON
+// #define MEMP_DEBUG               LWIP_DBG_ON
+// #define PBUF_DEBUG               LWIP_DBG_ON
+// #define SOCKETS_DEBUG            LWIP_DBG_ON
+// #define TCPIP_DEBUG              LWIP_DBG_ON
+// #define TCP_INPUT_DEBUG          LWIP_DBG_ON
+// #define TCP_DEBUG                LWIP_DBG_ON
+// #define IP_DEBUG                 LWIP_DBG_ON
+// #define UDP_DEBUG                LWIP_DBG_ON
 #endif /* LWIP_DEBUG */
 
 
@@ -287,7 +294,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  * The stack size value itself is platform-dependent, but is passed to
  * sys_thread_new() when the thread is created.
  */
-#define DEFAULT_THREAD_STACKSIZE        (6 * 128)
+#define DEFAULT_THREAD_STACKSIZE        (4 * 128)
 /**
  * DEFAULT_THREAD_PRIO: The priority assigned to any other lwIP thread.
  * The priority value itself is platform-dependent, but is passed to
@@ -308,19 +315,19 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  * NETCONN_UDP. The queue size value itself is platform-dependent, but is passed
  * to sys_mbox_new() when the recvmbox is created.
  */
-#define DEFAULT_UDP_RECVMBOX_SIZE       2000
+#define DEFAULT_UDP_RECVMBOX_SIZE       20
 /**
  * DEFAULT_TCP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
  * NETCONN_TCP. The queue size value itself is platform-dependent, but is passed
  * to sys_mbox_new() when the recvmbox is created.
  */
-#define DEFAULT_TCP_RECVMBOX_SIZE       2000
+#define DEFAULT_TCP_RECVMBOX_SIZE       20
 /**
  * DEFAULT_ACCEPTMBOX_SIZE: The mailbox size for the incoming connections.
  * The queue size value itself is platform-dependent, but is passed to
  * sys_mbox_new() when the acceptmbox is created.
  */
-#define DEFAULT_ACCEPTMBOX_SIZE         2000
+#define DEFAULT_ACCEPTMBOX_SIZE         20
 
 
 #if (LWIP_DNS || LWIP_IGMP || LWIP_IPV6) && !defined(LWIP_RAND)
@@ -333,7 +340,7 @@ u32_t lwip_rand(void);
 
 /*
    ---------------------------------
-   ---------- User options ---------
+   ---------- Other options --------
    ---------------------------------
 */
 /**
@@ -346,33 +353,31 @@ u32_t lwip_rand(void);
 /* Please leave the default values, compliant with RFC 1122. 
    Don't change this unless you know what you're doing.
    The following defaults are found in tcp_priv.h */
-// #define TCP_KEEPIDLE_DEFAULT            12000   // 12秒内连接双方都无数据，则发起保活探测（该值默认为 2小时）
-// #define TCP_KEEPINTVL_DEFAULT           5000    // 每 5秒发送一次保活探测（该值默认为 75秒）
-// #define TCP_KEEPCNT_DEFAULT             3       // 一共发送 3次保活探测包，如果这 3个包对方均无回应，则表示连接异常，内核关闭连接，并发送 err回调到用户程序(该值默认为 9次)
+#define TCP_KEEPIDLE_DEFAULT            12000   // 12秒内连接双方都无数据，则发起保活探测（该值默认为 2小时）
+#define TCP_KEEPINTVL_DEFAULT           5000    // 每 5秒发送一次保活探测（该值默认为 75秒）
+#define TCP_KEEPCNT_DEFAULT             3       // 一共发送 3次保活探测包，如果这 3个包对方均无回应，则表示连接异常，内核关闭连接，并发送 err回调到用户程序(该值默认为 9次)
 #endif /* LWIP_TCP_KEEPALIVE */
 
+#if (LWIP_NETCONN || LWIP_SOCKET)
 /**
- * MEMP_NUM_NETBUF: the number of struct netbufs.
- * (only needed if you use the sequential API, like api_lib.c)
+ * LWIP_SO_RCVTIMEO==1: Enable receive timeout for sockets/netconns and
+ * SO_RCVTIMEO processing.
  */
-#define MEMP_NUM_NETBUF                 4
+#define LWIP_SO_RCVTIMEO         1
+
+/**
+ * LWIP_SO_SNDTIMEO==1: Enable send timeout for sockets/netconns and
+ * SO_SNDTIMEO processing.
+ */
+#define LWIP_SO_SNDTIMEO         1
+
+#endif /* LWIP_NETCONN || LWIP_SOCKET */
 
 /**
  * LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
  * whenever the link changes (i.e., link down)
  */
 #define LWIP_NETIF_LINK_CALLBACK        1
-
-/**
- * MEMP_OVERFLOW_CHECK: memp overflow protection reserves a configurable
- * amount of bytes before and after each memp element in every pool and fills
- * it with a prominent default value.
- *    MEMP_OVERFLOW_CHECK == 0 no checking
- *    MEMP_OVERFLOW_CHECK == 1 checks each element when it is freed
- *    MEMP_OVERFLOW_CHECK >= 2 checks each element in every pool every time
- *      memp_malloc() or memp_free() is called (useful but slow!)
- */
-#define MEMP_OVERFLOW_CHECK             0
 
 
 //#define LWIP_TCPIP_TIMEOUT             1

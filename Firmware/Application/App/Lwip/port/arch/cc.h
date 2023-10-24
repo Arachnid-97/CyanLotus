@@ -112,9 +112,12 @@ typedef u32_t          mem_ptr_t;
 #endif /* __GNUC__ */
 
 
+#define LWIP_DECLARE_MEMORY_ALIGNED(variable_name, size) u8_t variable_name[size] __attribute__((aligned(4))) __attribute__ ((section (".ext_sdram")))
+
+#ifndef LWIP_DECLARE_MEMORY_ALIGNED
 #define LWIP_RAM_HEAP_POINTER       ram_heap
 extern u8_t *LWIP_RAM_HEAP_POINTER;
-
+#endif /* LWIP_DECLARE_MEMORY_ALIGNED */
 
 /* non-fatal, print a message. */
 #include <stdio.h>

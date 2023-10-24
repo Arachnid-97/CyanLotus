@@ -61,8 +61,10 @@ extern __IO uint32_t  EthStatus;
 __IO DHCP_State_ TypeDef DHCP_state;
 #endif /* USE_DHCP */
 
-u8_t *ram_heap = NULL;
 
+#ifdef LWIP_RAM_HEAP_POINTER
+u8_t *LWIP_RAM_HEAP_POINTER = NULL;
+#endif /* LWIP_RAM_HEAP_POINTER */
 
 /**
   * @brief  lwip relocate the heap to external memory
@@ -74,19 +76,12 @@ void lwip_comm_mem_malloc(void)
 
 #ifdef LWIP_RAM_HEAP_POINTER
 
-/** All allocated blocks will be MIN_SIZE bytes big, at least!
- * MIN_SIZE can be overridden to suit your needs. Smaller values save space,
- * larger values could prevent too small blocks to fragment the RAM too much. */
-#ifndef MIN_SIZE
-#define MIN_SIZE             12
-#endif /* MIN_SIZE */
 /* some alignment macros: we define them here for better source code layout */
-#define MIN_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MIN_SIZE)
 #define SIZEOF_STRUCT_MEM    LWIP_MEM_ALIGN_SIZE(6)
 #define MEM_SIZE_ALIGNED     LWIP_MEM_ALIGN_SIZE(MEM_SIZE)
-  ram_heap = pvPortMalloc(MEM_SIZE_ALIGNED + (2*SIZEOF_STRUCT_MEM) + MEM_ALIGNMENT);
+  LWIP_RAM_HEAP_POINTER = pvPortMalloc(LWIP_MEM_ALIGN_BUFFER(MEM_SIZE_ALIGNED + (2*SIZEOF_STRUCT_MEM)));
 
-  if(ram_heap == NULL)
+  if(LWIP_RAM_HEAP_POINTER == NULL)
     printf("ram_heap malloc fail!\r\n");
 
 #endif /* LWIP_RAM_HEAP_POINTER */
@@ -119,10 +114,6 @@ void LwIP_Init(void)
     IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
     IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
     IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
-
-	// ipaddr.addr = inet_addr(DEFAULT_NETIP);//SysParam->ipaddr.addr;
-	// netmask.addr = inet_addr(DEFAULT_NETMASK);//SysParam->netmask.addr;
-	// gw.addr = inet_addr(DEFAULT_NETGW);//SysParam->gw.addr;
 #endif
   
   /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
