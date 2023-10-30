@@ -5,7 +5,11 @@
 #include "stm32f4xx.h"
 
 
-#define TCP_TxBUF_SIZE			512
+#define ETH_SPEED_TEST          0
+
+#define IF_NAMESIZE             16
+
+#define TCP_TxBUF_SIZE			1540
 struct TCP_SendBuf_TypeDef
 {
     uint8_t Buffer[TCP_TxBUF_SIZE];     // ·¢ËÍÔÝ´æ»º³åÇø
@@ -18,11 +22,23 @@ typedef enum
 	Server_PortA
 }TCPPort_TypeDef;
 
+extern char remote_server_ip[IF_NAMESIZE];
+extern int remote_server_port;
+
 
 void TCP_Send(TCPPort_TypeDef Port, const void *data, uint16_t size);
 int TCPIP_Errno(void);
 
 void Ethernet_Init(void);
+
+
+void vTCPClient_Task(void *pvParameters);
+void vTCPServer_Task(void *pvParameters);
+void vUDP_Task(void *pvParameters);
+
+#if ETH_SPEED_TEST
+int ETH_Speed_Detection(int sockfd, char *ptr, int len, int (*fun)(int, void *, unsigned int));
+#endif /* ETH_SPEED_TEST */
 
 
 #endif /* __ETH_SOCKET_H */

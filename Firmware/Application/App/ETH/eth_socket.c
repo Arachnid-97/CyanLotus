@@ -58,7 +58,7 @@ static void prvTCPIP_Task( void *pvParameters )
 {
     // Server_Task_Handle = sys_thread_new("vTCPServer_Task", vTCPServer_Task, NULL, DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
-    // Client_Task_Handle = sys_thread_new("vTCPClient_Task", vTCPClient_Task, NULL, 2 * DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
+    Client_Task_Handle = sys_thread_new("vTCPClient_Task", vTCPClient_Task, NULL, 2 * DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
     // sys_thread_new("vTaskUDP", vUDP_Task, NULL, DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
 
@@ -69,4 +69,37 @@ static void prvTCPIP_Task( void *pvParameters )
 	vTaskDelete(NULL);
 }
 
+#if ETH_SPEED_TEST
+int ETH_Speed_Detection(int sockfd, char *ptr, int len, int (*fun)(int, void *, unsigned int))
+{
+    static uint8_t init_flag = 1;
+    static uint32_t tick1 = 0;
+    uint32_t tick2;
+    static uint64_t cnt = 0;
+    int ret = 0;
+
+    tick2 = sys_now();
+    if (tick2 - tick1 >= configTICK_RATE_HZ * 5)
+    {
+        if(0 == init_flag){
+            float f;
+            f = (float)(cnt*configTICK_RATE_HZ/125/(tick2 - tick1));
+            f /= 1000.0f;
+            printf("test speed = %.4f Mbps!\n", f);
+        }
+        else
+            init_flag = 0;
+
+        tick1 = tick2;
+        cnt = 0;
+    }
+
+    ret = fun(sockfd, ptr, len);
+    if(ret){
+        cnt += ret;
+    }
+
+    return ret;
+}
+#endif /* ETH_SPEED_TEST */
 

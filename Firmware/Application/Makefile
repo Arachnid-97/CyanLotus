@@ -121,7 +121,10 @@ $(SUBDIRS)/AT24Cxx/ee_simulate.c \
 $(SUBDIRS)/W5500/w5500.c \
 $(SUBDIRS)/W5500/w5500_drv.c \
 $(SUBDIRS)/W5500/w5500_mode.c \
-$(SUBDIRS)/IMU/mpu6050.c
+$(SUBDIRS)/IMU/mpu6050.c \
+$(SUBDIRS)/ETH/client_socket.c \
+$(SUBDIRS)/ETH/server_socket.c \
+$(SUBDIRS)/ETH/udp_socket.c
 
 # middleware source.
 ifeq ($(USING_RTOS), 1)
@@ -424,7 +427,7 @@ CFLAGS += -g -gdwarf-2
 # Prevent silent errors when converting between types (requires explicit casting).
 # CFLAGS += -Wconversion
 
-VERSIONS = \"V9.9.9\"
+VERSIONS := \"V9.9.9\"
 endif
 
 # Generate dependency information.
